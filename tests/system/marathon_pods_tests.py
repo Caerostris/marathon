@@ -91,13 +91,10 @@ def test_create_pod():
 @pytest.mark.skipif("docker_env_set()")
 @dcos_1_10
 def test_create_pod_with_private_image():
-    assert 'DOCKER_HUB_USERNAME' in os.environ, "Couldn't find docker hub username. $DOCKER_HUB_USERNAME is not set"
-    assert 'DOCKER_HUB_PASSWORD' in os.environ, "Couldn't find docker hub password. $DOCKER_HUB_PASSWORD is not set"
-
     username = os.environ['DOCKER_HUB_USERNAME']
     password = os.environ['DOCKER_HUB_PASSWORD']
 
-    secret_name = "private-image-pod/pullConfig"
+    secret_name = "dockerPullConfig"
     secret_value_json = common.create_docker_pull_config_json(username, password)
 
     import json
@@ -106,38 +103,11 @@ def test_create_pod_with_private_image():
     client = marathon.create_client()
     common.create_secret(secret_name, secret_value)
 
-    pod_id = "/private-image-pod"
-    pod_json = {
-        "id": pod_id,
-        "scaling": {
-            "kind": "fixed",
-            "instances": 1
-        },
-        "containers": [{
-            "name": "simple-docker",
-            "resources": {
-                "cpus": 1,
-                "mem": 128
-            },
-            "image": {
-                "kind": "DOCKER",
-                "id": "mesosphere/simple-docker-ee:latest",
-                "config": {
-                    "secret": "pullConfigSecret"
-                }
-            }
-        }],
-        "secrets": {
-            "pullConfigSecret": {
-                "source": secret_name
-            }
-        }
-    }
-
     try:
-        client.add_pod(pod_json)
+        pod_def = common.private_docker_pod(secret_name)
+        client.add_pod(pod_def)
         shakedown.deployment_wait()
-        pod = client.show_pod(pod_id)
+        pod = client.show_pod(pod_def["id"])
         assert pod is not None
     finally:
         client.delete_secret(secret_name)

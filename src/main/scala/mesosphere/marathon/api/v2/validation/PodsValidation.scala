@@ -131,7 +131,6 @@ trait PodsValidation {
       image.kind match {
         case ImageType.Docker => validate(image)(dockerImageValidator)
         case ImageType.Appc => validate(image)(appcImageValidator)
-        case _ => Failure(Set(RuleViolation(image, s"Unknown image kind: ${image.kind}", None)))
       }
     }
   }

@@ -469,9 +469,19 @@ def private_docker_container_app(docker_credentials_filename='docker.tar.gz'):
     }
 
 
-def private_mesos_container_app(secret_name, id="/private-mesos-app"):
+def private_mesos_container_app(secret_name, app_id=None):
+    """ Returns an application definition that uses Mesos containerizer and
+        expects a valid Docker config.json referenced by the given `secret_name`.
+
+        :param secret_name: secret name which value is a Docker config.json
+        :param app_id: optional application ID, if not given, a random UUID is used
+        :return: application definition represented using Python data structures
+    """
+    if app_id is None:
+        app_id = '/{}'.format(uuid.uuid4().hex)
+
     return {
-        "id": id,
+        "id": app_id,
         "instances": 1,
         "cpus": 1,
         "mem": 128,
@@ -484,6 +494,45 @@ def private_mesos_container_app(secret_name, id="/private-mesos-app"):
                 }
             }
         },
+        "secrets": {
+            "pullConfigSecret": {
+                "source": secret_name
+            }
+        }
+    }
+
+
+def private_docker_pod(secret_name, pod_id=None):
+    """ Returns a pod definition that uses a Docker image and
+        expects a valid Docker config.json referenced by the given `secret_name`.
+
+        :param secret_name: secret name which value is a Docker config.json
+        :param pod_id: optional pod ID, if not given, a random UUID is used
+        :return: pod definition represented using Python data structures
+    """
+    if pod_id is None:
+        pod_id = '/{}'.format(uuid.uuid4().hex)
+
+    return {
+        "id": pod_id,
+        "scaling": {
+            "kind": "fixed",
+            "instances": 1
+        },
+        "containers": [{
+            "name": "simple-docker",
+            "resources": {
+                "cpus": 1,
+                "mem": 128
+            },
+            "image": {
+                "kind": "DOCKER",
+                "id": "mesosphere/simple-docker-ee:latest",
+                "config": {
+                    "secret": "pullConfigSecret"
+                }
+            }
+        }],
         "secrets": {
             "pullConfigSecret": {
                 "source": secret_name
@@ -793,6 +842,12 @@ def is_enterprise_cli_package_installed():
 
 
 def create_docker_pull_config_json(username, password):
+    """ Create a Docker config.json represented using Python data structures.
+
+        :param username: username for a private Docker registry
+        :param password: password for a private Docker registry
+        :return: Docker config.json
+    """
     print('Creating a config.json content for dockerhub username {}'.format(username))
 
     import base64
@@ -818,16 +873,7 @@ def create_docker_credentials_file(username, password, file_name='docker.tar.gz'
     print('Creating a tarball {} with json credentials for dockerhub username {}'.format(file_name, username))
     config_json_filename = 'config.json'
 
-    import base64
-    auth_hash = base64.b64encode('{}:{}'.format(username, password).encode()).decode()
-
-    config_json = {
-      "auths": {
-        "https://index.docker.io/v1/": {
-          "auth": auth_hash
-        }
-      }
-    }
+    config_json = create_docker_pull_config_json(username, password)
 
     # Write config.json to file
     with open(config_json_filename, 'w') as f:
@@ -879,7 +925,6 @@ def create_secret(secret_name, secret_value):
         :param secret_value: secret_value
         :type secret_value: str
     """
-    # temporarily workaround in order to be able to pass a JSON object as a secret value
     escaped_secret_value = escape_cli_arg(secret_value)
     stdout, stderr, return_code = run_dcos_command(
         'security secrets create --value="{}" {}'.format(escaped_secret_value, secret_name))

@@ -197,7 +197,7 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
     }).flatten match {
       case Some(deserializedPullConfig) => deserializedPullConfig
       case _ =>
-        throw new SerializationFailedException(s"Failed to deserialize a docker pull config: $pullConfig")
+        throw SerializationFailedException(s"Failed to deserialize a docker pull config: $pullConfig")
     }
   }
 

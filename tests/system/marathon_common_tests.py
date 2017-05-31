@@ -1016,13 +1016,10 @@ def test_private_repository_docker_app():
 def test_private_repository_mesos_app():
     """ Test private docker registry with mesos containerizer using "config" container's image field."""
 
-    assert 'DOCKER_HUB_USERNAME' in os.environ, "Couldn't find docker hub username. $DOCKER_HUB_USERNAME is not set"
-    assert 'DOCKER_HUB_PASSWORD' in os.environ, "Couldn't find docker hub password. $DOCKER_HUB_PASSWORD is not set"
-
     username = os.environ['DOCKER_HUB_USERNAME']
     password = os.environ['DOCKER_HUB_PASSWORD']
 
-    secret_name = "private-mesos-app/pullConfig"
+    secret_name = "dockerPullConfig"
     secret_value_json = common.create_docker_pull_config_json(username, password)
 
     import json
