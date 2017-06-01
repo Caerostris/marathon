@@ -162,18 +162,10 @@ trait PodsValidation {
       container.artifacts is every(artifactValidator)
     }
 
-  def volumeValidator(containers: Seq[PodContainer]): Validator[PodVolume] = new Validator[PodVolume] {
-    override def apply(v: raml.PodVolume): Result = {
-      v match {
-        case v: raml.EphemeralVolume => Success
-        case v: raml.HostVolume => Success
-        case v: raml.PodSecretVolume => Success
-        case _ => Failure(Set(RuleViolation(v, "Unknown pod volume type", None)))
-      }
+  def volumeValidator(containers: Seq[PodContainer]): Validator[PodVolume] =
+    isTrue[PodVolume]("volume must be referenced by at least one container") { v =>
+      containers.exists(_.volumeMounts.exists(_.name == volumeName(v)))
     }
-  } and isTrue[PodVolume]("volume must be referenced by at least one container") { v =>
-    containers.exists(_.volumeMounts.exists(_.name == volumeName(v)))
-  }
 
   val fixedPodScalingPolicyValidator = validator[FixedPodScalingPolicy] { f =>
     f.instances should be >= 0
@@ -224,9 +216,9 @@ trait PodsValidation {
 
   def volumeNames(volumes: Seq[PodVolume]) = volumes.map(volumeName)
   def volumeName(volume: PodVolume): String = volume match {
-    case raml.EphemeralVolume(name) => name
-    case raml.HostVolume(name, _) => name
-    case raml.PodSecretVolume(name, _) => name
+    case EphemeralVolume(name) => name
+    case HostVolume(name, _) => name
+    case PodSecretVolume(name, _) => name
   }
 }
 

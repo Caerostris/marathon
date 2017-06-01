@@ -20,7 +20,7 @@ trait VolumeConversion extends ConstraintConversion with DefaultConversions {
   implicit val volumeRamlWriter: Writes[pod.Volume, PodVolume] = Writes {
     case e: pod.EphemeralVolume => raml.EphemeralVolume(e.name)
     case h: pod.HostVolume => raml.HostVolume(h.name, h.hostPath)
-    case s: pod.SecretVolume => PodSecretVolume(s.name, s.secret)
+    case s: pod.SecretVolume => raml.PodSecretVolume(s.name, s.secret)
   }
 
   implicit val volumeModeWrites: Writes[Mesos.Volume.Mode, ReadMode] = Writes {

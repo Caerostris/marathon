@@ -43,19 +43,6 @@ object Volume {
       )
   }
 
-  type TupleV = (String, Option[String], Mesos.Volume.Mode, Option[PersistentVolumeInfo], Option[ExternalVolumeInfo], Option[SecretVolume])
-  def unapply(volume: Volume): Option[TupleV] =
-    volume match {
-      case persistentVolume: PersistentVolume =>
-        Some((persistentVolume.containerPath, None, persistentVolume.mode, Some(persistentVolume.persistent), None, None))
-      case ev: ExternalVolume =>
-        Some((ev.containerPath, None, ev.mode, None, Some(ev.external), None))
-      case dockerVolume: DockerVolume =>
-        Some((dockerVolume.containerPath, Some(dockerVolume.hostPath), dockerVolume.mode, None, None, None))
-      case secretVolume: SecretVolume =>
-        Some((secretVolume.containerPath, None, secretVolume.mode, None, None, Some(SecretVolume(secretVolume.containerPath, secretVolume.secret))))
-    }
-
   def validVolume(enabledFeatures: Set[String]): Validator[Volume] = new Validator[Volume] {
     override def apply(volume: Volume): Result = volume match {
       case pv: PersistentVolume => validate(pv)(PersistentVolume.validPersistentVolume)

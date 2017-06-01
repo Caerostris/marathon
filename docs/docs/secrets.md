@@ -57,9 +57,7 @@ The environment API facilitates the rendering of a secret as the value of an env
   ],
   "environment": {
     "DATABASE_PW": { 
-      "secret": {
-        "source": "databasepassword"
-      }
+      "secret": "secretpassword"
     }
   },
   "secrets": {
