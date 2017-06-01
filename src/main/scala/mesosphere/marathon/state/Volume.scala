@@ -48,7 +48,7 @@ object Volume {
       case pv: PersistentVolume => validate(pv)(PersistentVolume.validPersistentVolume)
       case dv: DockerVolume => validate(dv)(DockerVolume.validDockerVolume)
       case ev: ExternalVolume => validate(ev)(ExternalVolume.validExternalVolume(enabledFeatures))
-      case sv: SecretVolume => validate(sv)(SecretVolume.validSecretVolume(enabledFeatures))
+      case _: SecretVolume => Success // validation is done in raml
     }
   }
 }
@@ -331,10 +331,4 @@ case class SecretVolume(
     containerPath: String,
     secret: String) extends Volume with AppSecretVolumeSpec {
   override val mode: Mesos.Volume.Mode = Mesos.Volume.Mode.RO
-}
-
-object SecretVolume {
-  def validSecretVolume(enabledFeatures: Set[String]): Validator[SecretVolume] = validator[SecretVolume] { ev =>
-    ev is featureEnabled(enabledFeatures, Features.SECRETS)
-  }
 }

@@ -5,7 +5,7 @@ import java.util.regex.Pattern
 
 import com.wix.accord._
 import com.wix.accord.dsl._
-import mesosphere.marathon.api.v2.Validation._
+import mesosphere.marathon.api.v2.Validation.{ featureEnabled, _ }
 import mesosphere.marathon.core.externalvolume.ExternalVolumes
 import mesosphere.marathon.raml._
 import mesosphere.marathon.state.{ AppDefinition, PathId, ResourceRole }
@@ -302,9 +302,7 @@ trait AppValidation {
       update.id.map(PathId(_)) as "id" is optional(valid)
       update.dependencies.map(_.map(PathId(_))) as "dependencies" is optional(every(valid))
       update.env is optional(envValidator(strictNameValidation = false, update.secrets.getOrElse(Map.empty), enabledFeatures))
-      update.secrets is optional({ secrets: Map[String, SecretDef] =>
-        secrets.nonEmpty
-      } -> (featureEnabled(enabledFeatures, Features.SECRETS)))
+      update.secrets is empty or featureEnabled(enabledFeatures, Features.SECRETS)
       update.secrets is optional(featureEnabledImplies(enabledFeatures, Features.SECRETS)(every(secretEntryValidator)))
       update.fetch is optional(every(valid))
       update.portDefinitions is optional(portDefinitionsValidator)
