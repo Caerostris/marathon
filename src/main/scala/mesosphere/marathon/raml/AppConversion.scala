@@ -9,7 +9,8 @@ import mesosphere.mesos.protos.Implicits._
 import scala.concurrent.duration._
 
 trait AppConversion extends ConstraintConversion with EnvVarConversion with HealthCheckConversion
-    with NetworkConversion with ReadinessConversions with SecretConversion with VolumeConversion with UnreachableStrategyConversion with KillSelectionConversion {
+    with NetworkConversion with ReadinessConversions with SecretConversion with VolumeConversion
+    with UnreachableStrategyConversion with KillSelectionConversion with SchedulerConversion {
 
   import AppConversion._
 
@@ -68,6 +69,7 @@ trait AppConversion extends ConstraintConversion with EnvVarConversion with Heal
       residency = app.residency.toRaml,
       requirePorts = app.requirePorts,
       secrets = app.secrets.toRaml,
+      scheduler = Some(app.scheduler.toRaml),
       taskKillGracePeriodSeconds = app.taskKillGracePeriod.map(_.toSeconds.toInt),
       upgradeStrategy = Some(app.upgradeStrategy.toRaml),
       uris = None, // deprecated field
@@ -166,6 +168,7 @@ trait AppConversion extends ConstraintConversion with EnvVarConversion with Heal
       versionInfo = versionInfo,
       residency = selectedStrategy.residency,
       secrets = Raml.fromRaml(app.secrets),
+      scheduler = app.scheduler.getOrElse(Scheduler.Default).fromRaml,
       unreachableStrategy = app.unreachableStrategy.map(_.fromRaml).getOrElse(AppDefinition.DefaultUnreachableStrategy),
       killSelection = app.killSelection.fromRaml,
       tty = app.tty
@@ -213,6 +216,7 @@ trait AppConversion extends ConstraintConversion with EnvVarConversion with Heal
       // any special steps here to preserve it; that's the caller's responsibility.
       residency = update.residency.orElse(app.residency),
       secrets = update.secrets.getOrElse(app.secrets),
+      scheduler = update.scheduler.orElse(app.scheduler),
       taskKillGracePeriodSeconds = update.taskKillGracePeriodSeconds.orElse(app.taskKillGracePeriodSeconds),
       unreachableStrategy = update.unreachableStrategy.orElse(app.unreachableStrategy),
       killSelection = update.killSelection.getOrElse(app.killSelection),
@@ -339,6 +343,7 @@ trait AppConversion extends ConstraintConversion with EnvVarConversion with Heal
       residency = service.when(_.hasResidency, _.getResidency.toRaml).orElse(App.DefaultResidency),
       requirePorts = service.whenOrElse(_.hasRequirePorts, _.getRequirePorts, App.DefaultRequirePorts),
       secrets = service.whenOrElse(_.getSecretsCount > 0, _.getSecretsList.map(_.toRaml)(collection.breakOut), App.DefaultSecrets),
+      scheduler = service.when(_.hasScheduler, _.getScheduler.toRaml).orElse(App.DefaultScheduler),
       taskKillGracePeriodSeconds = service.when(_.hasTaskKillGracePeriod, _.getTaskKillGracePeriod.toInt).orElse(App.DefaultTaskKillGracePeriodSeconds),
       upgradeStrategy = service.when(_.hasUpgradeStrategy, _.getUpgradeStrategy.toRaml).orElse(App.DefaultUpgradeStrategy),
       uris = None, // not stored in protobuf
@@ -407,7 +412,8 @@ trait AppConversion extends ConstraintConversion with EnvVarConversion with Heal
       ipAddress = app.ipAddress,
       ports = app.ports,
       uris = app.uris,
-      tty = app.tty
+      tty = app.tty,
+      scheduler = app.scheduler
     )
   }
 }

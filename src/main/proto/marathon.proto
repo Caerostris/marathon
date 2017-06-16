@@ -126,6 +126,7 @@ message ServiceDefinition {
   optional ResidencyDefinition residency = 26;
   repeated mesos.Port portDefinitions = 27;
   repeated ReadinessCheckDefinition readinessCheckDefinition = 28;
+  optional Scheduler scheduler = 36;
   repeated Secret secrets = 29;
   repeated EnvVarReference envVarReferences = 30;
   optional int64 taskKillGracePeriod = 31; // stored as Millis
@@ -475,6 +476,15 @@ message ResidencyDefinition {
 
   optional int64 relaunchEscalationTimeoutSeconds = 1;
   optional TaskLostBehavior taskLostBehavior = 2;
+}
+
+message Scheduler {
+  enum SchedulerType {
+    CONTINUOUS = 0;
+    MANUAL = 1;
+  }
+
+  required SchedulerType schedulerType = 1;
 }
 
 message Secret {

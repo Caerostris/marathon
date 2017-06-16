@@ -16,11 +16,13 @@ import mesosphere.marathon.core.appinfo._
 import mesosphere.marathon.core.base.Clock
 import mesosphere.marathon.core.event.ApiPostEvent
 import mesosphere.marathon.core.group.GroupManager
+import mesosphere.marathon.core.launchqueue.LaunchQueue
 import mesosphere.marathon.core.plugin.PluginManager
 import mesosphere.marathon.plugin.auth._
 import mesosphere.marathon.raml.{ AppConversion, AppExternalVolume, AppPersistentVolume, Raml }
 import mesosphere.marathon.state.PathId._
 import mesosphere.marathon.state._
+import mesosphere.marathon.storage.repository.GroupRepository
 import mesosphere.marathon.stream.Implicits._
 import play.api.libs.json.{ JsObject, Json }
 
@@ -35,6 +37,8 @@ class AppsResource @Inject() (
     appInfoService: AppInfoService,
     val config: MarathonConf,
     groupManager: GroupManager,
+    groupRepository: GroupRepository,
+    launchQueue: LaunchQueue,
     pluginManager: PluginManager)(implicit
   val authenticator: Authenticator,
     val authorizer: Authorizer) extends RestResource with AuthResource {
@@ -88,8 +92,22 @@ class AppsResource @Inject() (
         .map(_ => throw ConflictingChangeException(s"An app with id [${app.id}] already exists."))
         .getOrElse(app)
 
-      val plan = result(groupManager.updateApp(app.id, createOrThrow, app.version, force))
+      /*    if (app.scheduler.schedulerType == SchedulerType.Manual) {
+        launchQueue.add(app)
 
+        val appWithDeployments = AppInfo(
+          app,
+          maybeCounts = Some(TaskCounts.zero),
+          maybeTasks = Some(Seq.empty),
+          maybeDeployments = None
+        )
+
+        Response
+          .created(new URI(app.id.toString))
+          .entity(jsonString(appWithDeployments))
+          .build()
+      } else { */
+      val plan = result(groupManager.updateApp(app.id, createOrThrow, app.version, force))
       val appWithDeployments = AppInfo(
         app,
         maybeCounts = Some(TaskCounts.zero),
@@ -103,6 +121,7 @@ class AppsResource @Inject() (
         .header(RestResource.DeploymentHeader, plan.id)
         .entity(jsonString(appWithDeployments))
         .build()
+      //  }
     }
   }
 

@@ -17,7 +17,7 @@ import mesosphere.marathon.core.launchqueue.LaunchQueue
 import mesosphere.marathon.core.task.Task
 import mesosphere.marathon.core.task.termination.{ KillReason, KillService }
 import mesosphere.marathon.core.task.tracker.InstanceTracker
-import mesosphere.marathon.state.{ PathId, RunSpec }
+import mesosphere.marathon.state.{ AppDefinition, PathId, RunSpec, SchedulerType }
 import mesosphere.marathon.storage.repository.{ DeploymentRepository, GroupRepository }
 import mesosphere.marathon.stream.Implicits._
 import mesosphere.marathon.util._
@@ -458,49 +458,56 @@ class SchedulerActions(
   // FIXME: extract computation into a function that can be easily tested
   @SuppressWarnings(Array("all")) // async/await
   def scale(runSpec: RunSpec): Future[Done] = async {
-    logger.debug("Scale for run spec {}", runSpec)
+    runSpec match {
+      case appDef: AppDefinition if appDef.scheduler.schedulerType == SchedulerType.Continuous =>
 
-    val runningInstances = await(instanceTracker.specInstances(runSpec.id)).filter(_.state.condition.isActive)
+        logger.debug("Scale for run spec {}", runSpec)
 
-    def killToMeetConstraints(notSentencedAndRunning: Seq[Instance], toKillCount: Int) = {
-      Constraints.selectInstancesToKill(runSpec, notSentencedAndRunning, toKillCount)
-    }
+        val runningInstances = await(instanceTracker.specInstances(runSpec.id)).filter(_.state.condition.isActive)
 
-    val targetCount = runSpec.instances
-
-    val ScalingProposition(instancesToKill, instancesToStart) = ScalingProposition.propose(
-      runningInstances, None, killToMeetConstraints, targetCount, runSpec.killSelection)
-
-    instancesToKill.foreach { instances: Seq[Instance] =>
-      logger.info(s"Scaling ${runSpec.id} from ${runningInstances.size} down to $targetCount instances")
-
-      launchQueue.asyncPurge(runSpec.id)
-        .recover {
-          case NonFatal(e) =>
-            logger.warn("Async purge failed: {}", e)
-            Done
-        }.foreach { _ =>
-          logger.info(s"Killing instances ${instances.map(_.instanceId)}")
-          killService.killInstances(instances, KillReason.OverCapacity)
+        def killToMeetConstraints(notSentencedAndRunning: Seq[Instance], toKillCount: Int) = {
+          Constraints.selectInstancesToKill(runSpec, notSentencedAndRunning, toKillCount)
         }
 
-    }
+        val targetCount = runSpec.instances
 
-    instancesToStart.foreach { toStart: Int =>
-      logger.info(s"Need to scale ${runSpec.id} from ${runningInstances.size} up to $targetCount instances")
-      val leftToLaunch = launchQueue.get(runSpec.id).fold(0)(_.instancesLeftToLaunch)
-      val toAdd = toStart - leftToLaunch
+        val ScalingProposition(instancesToKill, instancesToStart) = ScalingProposition.propose(
+          runningInstances, None, killToMeetConstraints, targetCount, runSpec.killSelection)
 
-      if (toAdd > 0) {
-        logger.info(s"Queueing $toAdd new instances for ${runSpec.id} to the already $leftToLaunch queued ones")
-        launchQueue.add(runSpec, toAdd)
-      } else {
-        logger.info(s"Already queued or started ${runningInstances.size} instances for ${runSpec.id}. Not scaling.")
-      }
-    }
+        instancesToKill.foreach { instances: Seq[Instance] =>
+          logger.info(s"Scaling ${runSpec.id} from ${runningInstances.size} down to $targetCount instances")
 
-    if (instancesToKill.isEmpty && instancesToStart.isEmpty) {
-      logger.info(s"Already running ${runSpec.instances} instances of ${runSpec.id}. Not scaling.")
+          launchQueue.asyncPurge(runSpec.id)
+            .recover {
+              case NonFatal(e) =>
+                logger.warn("Async purge failed: {}", e)
+                Done
+            }.foreach { _ =>
+              logger.info(s"Killing instances ${instances.map(_.instanceId)}")
+              killService.killInstances(instances, KillReason.OverCapacity)
+            }
+
+        }
+
+        instancesToStart.foreach { toStart: Int =>
+          logger.info(s"Need to scale ${runSpec.id} from ${runningInstances.size} up to $targetCount instances")
+          val leftToLaunch = launchQueue.get(runSpec.id).fold(0)(_.instancesLeftToLaunch)
+          val toAdd = toStart - leftToLaunch
+
+          if (toAdd > 0) {
+            logger.info(s"Queueing $toAdd new instances for ${runSpec.id} to the already $leftToLaunch queued ones")
+            launchQueue.add(runSpec, toAdd)
+          } else {
+            logger.info(s"Already queued or started ${runningInstances.size} instances for ${runSpec.id}. Not scaling.")
+          }
+        }
+
+        if (instancesToKill.isEmpty && instancesToStart.isEmpty) {
+          logger.info(s"Already running ${runSpec.instances} instances of ${runSpec.id}. Not scaling.")
+        }
+
+      case _ =>
+        logger.warn("Run spec is a job. Not scaling.")
     }
 
     Done

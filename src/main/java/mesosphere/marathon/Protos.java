@@ -7719,6 +7719,19 @@ public final class Protos {
         int index);
 
     /**
+     * <code>optional .mesosphere.marathon.Scheduler scheduler = 36;</code>
+     */
+    boolean hasScheduler();
+    /**
+     * <code>optional .mesosphere.marathon.Scheduler scheduler = 36;</code>
+     */
+    mesosphere.marathon.Protos.Scheduler getScheduler();
+    /**
+     * <code>optional .mesosphere.marathon.Scheduler scheduler = 36;</code>
+     */
+    mesosphere.marathon.Protos.SchedulerOrBuilder getSchedulerOrBuilder();
+
+    /**
      * <code>repeated .mesosphere.marathon.Secret secrets = 29;</code>
      */
     java.util.List<mesosphere.marathon.Protos.Secret> 
@@ -8153,29 +8166,29 @@ public final class Protos {
               break;
             }
             case 234: {
-              if (!((mutable_bitField0_ & 0x08000000) == 0x08000000)) {
+              if (!((mutable_bitField0_ & 0x10000000) == 0x10000000)) {
                 secrets_ = new java.util.ArrayList<mesosphere.marathon.Protos.Secret>();
-                mutable_bitField0_ |= 0x08000000;
+                mutable_bitField0_ |= 0x10000000;
               }
               secrets_.add(input.readMessage(mesosphere.marathon.Protos.Secret.PARSER, extensionRegistry));
               break;
             }
             case 242: {
-              if (!((mutable_bitField0_ & 0x10000000) == 0x10000000)) {
+              if (!((mutable_bitField0_ & 0x20000000) == 0x20000000)) {
                 envVarReferences_ = new java.util.ArrayList<mesosphere.marathon.Protos.EnvVarReference>();
-                mutable_bitField0_ |= 0x10000000;
+                mutable_bitField0_ |= 0x20000000;
               }
               envVarReferences_.add(input.readMessage(mesosphere.marathon.Protos.EnvVarReference.PARSER, extensionRegistry));
               break;
             }
             case 248: {
-              bitField0_ |= 0x00040000;
+              bitField0_ |= 0x00080000;
               taskKillGracePeriod_ = input.readInt64();
               break;
             }
             case 258: {
               mesosphere.marathon.Protos.UnreachableStrategy.Builder subBuilder = null;
-              if (((bitField0_ & 0x00080000) == 0x00080000)) {
+              if (((bitField0_ & 0x00100000) == 0x00100000)) {
                 subBuilder = unreachableStrategy_.toBuilder();
               }
               unreachableStrategy_ = input.readMessage(mesosphere.marathon.Protos.UnreachableStrategy.PARSER, extensionRegistry);
@@ -8183,7 +8196,7 @@ public final class Protos {
                 subBuilder.mergeFrom(unreachableStrategy_);
                 unreachableStrategy_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00080000;
+              bitField0_ |= 0x00100000;
               break;
             }
             case 264: {
@@ -8192,22 +8205,22 @@ public final class Protos {
               if (value == null) {
                 unknownFields.mergeVarintField(33, rawValue);
               } else {
-                bitField0_ |= 0x00100000;
+                bitField0_ |= 0x00200000;
                 killSelection_ = value;
               }
               break;
             }
             case 274: {
-              if (!((mutable_bitField1_ & 0x00000001) == 0x00000001)) {
+              if (!((mutable_bitField1_ & 0x00000002) == 0x00000002)) {
                 networks_ = new java.util.ArrayList<mesosphere.marathon.Protos.NetworkDefinition>();
-                mutable_bitField1_ |= 0x00000001;
+                mutable_bitField1_ |= 0x00000002;
               }
               networks_.add(input.readMessage(mesosphere.marathon.Protos.NetworkDefinition.PARSER, extensionRegistry));
               break;
             }
             case 282: {
               org.apache.mesos.Protos.TTYInfo.Builder subBuilder = null;
-              if (((bitField0_ & 0x00200000) == 0x00200000)) {
+              if (((bitField0_ & 0x00400000) == 0x00400000)) {
                 subBuilder = tty_.toBuilder();
               }
               tty_ = input.readMessage(org.apache.mesos.Protos.TTYInfo.PARSER, extensionRegistry);
@@ -8215,7 +8228,20 @@ public final class Protos {
                 subBuilder.mergeFrom(tty_);
                 tty_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00200000;
+              bitField0_ |= 0x00400000;
+              break;
+            }
+            case 290: {
+              mesosphere.marathon.Protos.Scheduler.Builder subBuilder = null;
+              if (((bitField0_ & 0x00040000) == 0x00040000)) {
+                subBuilder = scheduler_.toBuilder();
+              }
+              scheduler_ = input.readMessage(mesosphere.marathon.Protos.Scheduler.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(scheduler_);
+                scheduler_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00040000;
               break;
             }
           }
@@ -8253,13 +8279,13 @@ public final class Protos {
         if (((mutable_bitField0_ & 0x04000000) == 0x04000000)) {
           readinessCheckDefinition_ = java.util.Collections.unmodifiableList(readinessCheckDefinition_);
         }
-        if (((mutable_bitField0_ & 0x08000000) == 0x08000000)) {
+        if (((mutable_bitField0_ & 0x10000000) == 0x10000000)) {
           secrets_ = java.util.Collections.unmodifiableList(secrets_);
         }
-        if (((mutable_bitField0_ & 0x10000000) == 0x10000000)) {
+        if (((mutable_bitField0_ & 0x20000000) == 0x20000000)) {
           envVarReferences_ = java.util.Collections.unmodifiableList(envVarReferences_);
         }
-        if (((mutable_bitField1_ & 0x00000001) == 0x00000001)) {
+        if (((mutable_bitField1_ & 0x00000002) == 0x00000002)) {
           networks_ = java.util.Collections.unmodifiableList(networks_);
         }
         this.unknownFields = unknownFields.build();
@@ -9056,6 +9082,27 @@ public final class Protos {
       return readinessCheckDefinition_.get(index);
     }
 
+    public static final int SCHEDULER_FIELD_NUMBER = 36;
+    private mesosphere.marathon.Protos.Scheduler scheduler_;
+    /**
+     * <code>optional .mesosphere.marathon.Scheduler scheduler = 36;</code>
+     */
+    public boolean hasScheduler() {
+      return ((bitField0_ & 0x00040000) == 0x00040000);
+    }
+    /**
+     * <code>optional .mesosphere.marathon.Scheduler scheduler = 36;</code>
+     */
+    public mesosphere.marathon.Protos.Scheduler getScheduler() {
+      return scheduler_;
+    }
+    /**
+     * <code>optional .mesosphere.marathon.Scheduler scheduler = 36;</code>
+     */
+    public mesosphere.marathon.Protos.SchedulerOrBuilder getSchedulerOrBuilder() {
+      return scheduler_;
+    }
+
     public static final int SECRETS_FIELD_NUMBER = 29;
     private java.util.List<mesosphere.marathon.Protos.Secret> secrets_;
     /**
@@ -9136,7 +9183,7 @@ public final class Protos {
      * </pre>
      */
     public boolean hasTaskKillGracePeriod() {
-      return ((bitField0_ & 0x00040000) == 0x00040000);
+      return ((bitField0_ & 0x00080000) == 0x00080000);
     }
     /**
      * <code>optional int64 taskKillGracePeriod = 31;</code>
@@ -9155,7 +9202,7 @@ public final class Protos {
      * <code>optional .mesosphere.marathon.UnreachableStrategy unreachableStrategy = 32;</code>
      */
     public boolean hasUnreachableStrategy() {
-      return ((bitField0_ & 0x00080000) == 0x00080000);
+      return ((bitField0_ & 0x00100000) == 0x00100000);
     }
     /**
      * <code>optional .mesosphere.marathon.UnreachableStrategy unreachableStrategy = 32;</code>
@@ -9176,7 +9223,7 @@ public final class Protos {
      * <code>optional .mesosphere.marathon.KillSelection killSelection = 33 [default = YoungestFirst];</code>
      */
     public boolean hasKillSelection() {
-      return ((bitField0_ & 0x00100000) == 0x00100000);
+      return ((bitField0_ & 0x00200000) == 0x00200000);
     }
     /**
      * <code>optional .mesosphere.marathon.KillSelection killSelection = 33 [default = YoungestFirst];</code>
@@ -9246,7 +9293,7 @@ public final class Protos {
      * <code>optional .mesos.TTYInfo tty = 35;</code>
      */
     public boolean hasTty() {
-      return ((bitField0_ & 0x00200000) == 0x00200000);
+      return ((bitField0_ & 0x00400000) == 0x00400000);
     }
     /**
      * <code>optional .mesos.TTYInfo tty = 35;</code>
@@ -9289,6 +9336,7 @@ public final class Protos {
       residency_ = mesosphere.marathon.Protos.ResidencyDefinition.getDefaultInstance();
       portDefinitions_ = java.util.Collections.emptyList();
       readinessCheckDefinition_ = java.util.Collections.emptyList();
+      scheduler_ = mesosphere.marathon.Protos.Scheduler.getDefaultInstance();
       secrets_ = java.util.Collections.emptyList();
       envVarReferences_ = java.util.Collections.emptyList();
       taskKillGracePeriod_ = 0L;
@@ -9373,6 +9421,12 @@ public final class Protos {
       }
       for (int i = 0; i < getPortDefinitionsCount(); i++) {
         if (!getPortDefinitions(i).isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
+      }
+      if (hasScheduler()) {
+        if (!getScheduler().isInitialized()) {
           memoizedIsInitialized = 0;
           return false;
         }
@@ -9495,20 +9549,23 @@ public final class Protos {
       for (int i = 0; i < envVarReferences_.size(); i++) {
         output.writeMessage(30, envVarReferences_.get(i));
       }
-      if (((bitField0_ & 0x00040000) == 0x00040000)) {
+      if (((bitField0_ & 0x00080000) == 0x00080000)) {
         output.writeInt64(31, taskKillGracePeriod_);
       }
-      if (((bitField0_ & 0x00080000) == 0x00080000)) {
+      if (((bitField0_ & 0x00100000) == 0x00100000)) {
         output.writeMessage(32, unreachableStrategy_);
       }
-      if (((bitField0_ & 0x00100000) == 0x00100000)) {
+      if (((bitField0_ & 0x00200000) == 0x00200000)) {
         output.writeEnum(33, killSelection_.getNumber());
       }
       for (int i = 0; i < networks_.size(); i++) {
         output.writeMessage(34, networks_.get(i));
       }
-      if (((bitField0_ & 0x00200000) == 0x00200000)) {
+      if (((bitField0_ & 0x00400000) == 0x00400000)) {
         output.writeMessage(35, tty_);
+      }
+      if (((bitField0_ & 0x00040000) == 0x00040000)) {
+        output.writeMessage(36, scheduler_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -9650,15 +9707,15 @@ public final class Protos {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(30, envVarReferences_.get(i));
       }
-      if (((bitField0_ & 0x00040000) == 0x00040000)) {
+      if (((bitField0_ & 0x00080000) == 0x00080000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(31, taskKillGracePeriod_);
       }
-      if (((bitField0_ & 0x00080000) == 0x00080000)) {
+      if (((bitField0_ & 0x00100000) == 0x00100000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(32, unreachableStrategy_);
       }
-      if (((bitField0_ & 0x00100000) == 0x00100000)) {
+      if (((bitField0_ & 0x00200000) == 0x00200000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(33, killSelection_.getNumber());
       }
@@ -9666,9 +9723,13 @@ public final class Protos {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(34, networks_.get(i));
       }
-      if (((bitField0_ & 0x00200000) == 0x00200000)) {
+      if (((bitField0_ & 0x00400000) == 0x00400000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(35, tty_);
+      }
+      if (((bitField0_ & 0x00040000) == 0x00040000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(36, scheduler_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -9792,6 +9853,7 @@ public final class Protos {
           getResidencyFieldBuilder();
           getPortDefinitionsFieldBuilder();
           getReadinessCheckDefinitionFieldBuilder();
+          getSchedulerFieldBuilder();
           getSecretsFieldBuilder();
           getEnvVarReferencesFieldBuilder();
           getUnreachableStrategyFieldBuilder();
@@ -9911,31 +9973,37 @@ public final class Protos {
         } else {
           readinessCheckDefinitionBuilder_.clear();
         }
+        if (schedulerBuilder_ == null) {
+          scheduler_ = mesosphere.marathon.Protos.Scheduler.getDefaultInstance();
+        } else {
+          schedulerBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x08000000);
         if (secretsBuilder_ == null) {
           secrets_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x08000000);
+          bitField0_ = (bitField0_ & ~0x10000000);
         } else {
           secretsBuilder_.clear();
         }
         if (envVarReferencesBuilder_ == null) {
           envVarReferences_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x10000000);
+          bitField0_ = (bitField0_ & ~0x20000000);
         } else {
           envVarReferencesBuilder_.clear();
         }
         taskKillGracePeriod_ = 0L;
-        bitField0_ = (bitField0_ & ~0x20000000);
+        bitField0_ = (bitField0_ & ~0x40000000);
         if (unreachableStrategyBuilder_ == null) {
           unreachableStrategy_ = mesosphere.marathon.Protos.UnreachableStrategy.getDefaultInstance();
         } else {
           unreachableStrategyBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x40000000);
-        killSelection_ = mesosphere.marathon.Protos.KillSelection.YoungestFirst;
         bitField0_ = (bitField0_ & ~0x80000000);
+        killSelection_ = mesosphere.marathon.Protos.KillSelection.YoungestFirst;
+        bitField1_ = (bitField1_ & ~0x00000001);
         if (networksBuilder_ == null) {
           networks_ = java.util.Collections.emptyList();
-          bitField1_ = (bitField1_ & ~0x00000001);
+          bitField1_ = (bitField1_ & ~0x00000002);
         } else {
           networksBuilder_.clear();
         }
@@ -9944,7 +10012,7 @@ public final class Protos {
         } else {
           ttyBuilder_.clear();
         }
-        bitField1_ = (bitField1_ & ~0x00000002);
+        bitField1_ = (bitField1_ & ~0x00000004);
         return this;
       }
 
@@ -10143,51 +10211,59 @@ public final class Protos {
         } else {
           result.readinessCheckDefinition_ = readinessCheckDefinitionBuilder_.build();
         }
+        if (((from_bitField0_ & 0x08000000) == 0x08000000)) {
+          to_bitField0_ |= 0x00040000;
+        }
+        if (schedulerBuilder_ == null) {
+          result.scheduler_ = scheduler_;
+        } else {
+          result.scheduler_ = schedulerBuilder_.build();
+        }
         if (secretsBuilder_ == null) {
-          if (((bitField0_ & 0x08000000) == 0x08000000)) {
+          if (((bitField0_ & 0x10000000) == 0x10000000)) {
             secrets_ = java.util.Collections.unmodifiableList(secrets_);
-            bitField0_ = (bitField0_ & ~0x08000000);
+            bitField0_ = (bitField0_ & ~0x10000000);
           }
           result.secrets_ = secrets_;
         } else {
           result.secrets_ = secretsBuilder_.build();
         }
         if (envVarReferencesBuilder_ == null) {
-          if (((bitField0_ & 0x10000000) == 0x10000000)) {
+          if (((bitField0_ & 0x20000000) == 0x20000000)) {
             envVarReferences_ = java.util.Collections.unmodifiableList(envVarReferences_);
-            bitField0_ = (bitField0_ & ~0x10000000);
+            bitField0_ = (bitField0_ & ~0x20000000);
           }
           result.envVarReferences_ = envVarReferences_;
         } else {
           result.envVarReferences_ = envVarReferencesBuilder_.build();
         }
-        if (((from_bitField0_ & 0x20000000) == 0x20000000)) {
-          to_bitField0_ |= 0x00040000;
-        }
-        result.taskKillGracePeriod_ = taskKillGracePeriod_;
         if (((from_bitField0_ & 0x40000000) == 0x40000000)) {
           to_bitField0_ |= 0x00080000;
+        }
+        result.taskKillGracePeriod_ = taskKillGracePeriod_;
+        if (((from_bitField0_ & 0x80000000) == 0x80000000)) {
+          to_bitField0_ |= 0x00100000;
         }
         if (unreachableStrategyBuilder_ == null) {
           result.unreachableStrategy_ = unreachableStrategy_;
         } else {
           result.unreachableStrategy_ = unreachableStrategyBuilder_.build();
         }
-        if (((from_bitField0_ & 0x80000000) == 0x80000000)) {
-          to_bitField0_ |= 0x00100000;
+        if (((from_bitField1_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00200000;
         }
         result.killSelection_ = killSelection_;
         if (networksBuilder_ == null) {
-          if (((bitField1_ & 0x00000001) == 0x00000001)) {
+          if (((bitField1_ & 0x00000002) == 0x00000002)) {
             networks_ = java.util.Collections.unmodifiableList(networks_);
-            bitField1_ = (bitField1_ & ~0x00000001);
+            bitField1_ = (bitField1_ & ~0x00000002);
           }
           result.networks_ = networks_;
         } else {
           result.networks_ = networksBuilder_.build();
         }
-        if (((from_bitField1_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00200000;
+        if (((from_bitField1_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00400000;
         }
         if (ttyBuilder_ == null) {
           result.tty_ = tty_;
@@ -10458,11 +10534,14 @@ public final class Protos {
             }
           }
         }
+        if (other.hasScheduler()) {
+          mergeScheduler(other.getScheduler());
+        }
         if (secretsBuilder_ == null) {
           if (!other.secrets_.isEmpty()) {
             if (secrets_.isEmpty()) {
               secrets_ = other.secrets_;
-              bitField0_ = (bitField0_ & ~0x08000000);
+              bitField0_ = (bitField0_ & ~0x10000000);
             } else {
               ensureSecretsIsMutable();
               secrets_.addAll(other.secrets_);
@@ -10475,7 +10554,7 @@ public final class Protos {
               secretsBuilder_.dispose();
               secretsBuilder_ = null;
               secrets_ = other.secrets_;
-              bitField0_ = (bitField0_ & ~0x08000000);
+              bitField0_ = (bitField0_ & ~0x10000000);
               secretsBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getSecretsFieldBuilder() : null;
@@ -10488,7 +10567,7 @@ public final class Protos {
           if (!other.envVarReferences_.isEmpty()) {
             if (envVarReferences_.isEmpty()) {
               envVarReferences_ = other.envVarReferences_;
-              bitField0_ = (bitField0_ & ~0x10000000);
+              bitField0_ = (bitField0_ & ~0x20000000);
             } else {
               ensureEnvVarReferencesIsMutable();
               envVarReferences_.addAll(other.envVarReferences_);
@@ -10501,7 +10580,7 @@ public final class Protos {
               envVarReferencesBuilder_.dispose();
               envVarReferencesBuilder_ = null;
               envVarReferences_ = other.envVarReferences_;
-              bitField0_ = (bitField0_ & ~0x10000000);
+              bitField0_ = (bitField0_ & ~0x20000000);
               envVarReferencesBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getEnvVarReferencesFieldBuilder() : null;
@@ -10523,7 +10602,7 @@ public final class Protos {
           if (!other.networks_.isEmpty()) {
             if (networks_.isEmpty()) {
               networks_ = other.networks_;
-              bitField1_ = (bitField1_ & ~0x00000001);
+              bitField1_ = (bitField1_ & ~0x00000002);
             } else {
               ensureNetworksIsMutable();
               networks_.addAll(other.networks_);
@@ -10536,7 +10615,7 @@ public final class Protos {
               networksBuilder_.dispose();
               networksBuilder_ = null;
               networks_ = other.networks_;
-              bitField1_ = (bitField1_ & ~0x00000001);
+              bitField1_ = (bitField1_ & ~0x00000002);
               networksBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getNetworksFieldBuilder() : null;
@@ -10623,6 +10702,12 @@ public final class Protos {
         }
         for (int i = 0; i < getPortDefinitionsCount(); i++) {
           if (!getPortDefinitions(i).isInitialized()) {
+            
+            return false;
+          }
+        }
+        if (hasScheduler()) {
+          if (!getScheduler().isInitialized()) {
             
             return false;
           }
@@ -13834,12 +13919,128 @@ public final class Protos {
         return readinessCheckDefinitionBuilder_;
       }
 
+      private mesosphere.marathon.Protos.Scheduler scheduler_ = mesosphere.marathon.Protos.Scheduler.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          mesosphere.marathon.Protos.Scheduler, mesosphere.marathon.Protos.Scheduler.Builder, mesosphere.marathon.Protos.SchedulerOrBuilder> schedulerBuilder_;
+      /**
+       * <code>optional .mesosphere.marathon.Scheduler scheduler = 36;</code>
+       */
+      public boolean hasScheduler() {
+        return ((bitField0_ & 0x08000000) == 0x08000000);
+      }
+      /**
+       * <code>optional .mesosphere.marathon.Scheduler scheduler = 36;</code>
+       */
+      public mesosphere.marathon.Protos.Scheduler getScheduler() {
+        if (schedulerBuilder_ == null) {
+          return scheduler_;
+        } else {
+          return schedulerBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .mesosphere.marathon.Scheduler scheduler = 36;</code>
+       */
+      public Builder setScheduler(mesosphere.marathon.Protos.Scheduler value) {
+        if (schedulerBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          scheduler_ = value;
+          onChanged();
+        } else {
+          schedulerBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x08000000;
+        return this;
+      }
+      /**
+       * <code>optional .mesosphere.marathon.Scheduler scheduler = 36;</code>
+       */
+      public Builder setScheduler(
+          mesosphere.marathon.Protos.Scheduler.Builder builderForValue) {
+        if (schedulerBuilder_ == null) {
+          scheduler_ = builderForValue.build();
+          onChanged();
+        } else {
+          schedulerBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x08000000;
+        return this;
+      }
+      /**
+       * <code>optional .mesosphere.marathon.Scheduler scheduler = 36;</code>
+       */
+      public Builder mergeScheduler(mesosphere.marathon.Protos.Scheduler value) {
+        if (schedulerBuilder_ == null) {
+          if (((bitField0_ & 0x08000000) == 0x08000000) &&
+              scheduler_ != mesosphere.marathon.Protos.Scheduler.getDefaultInstance()) {
+            scheduler_ =
+              mesosphere.marathon.Protos.Scheduler.newBuilder(scheduler_).mergeFrom(value).buildPartial();
+          } else {
+            scheduler_ = value;
+          }
+          onChanged();
+        } else {
+          schedulerBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x08000000;
+        return this;
+      }
+      /**
+       * <code>optional .mesosphere.marathon.Scheduler scheduler = 36;</code>
+       */
+      public Builder clearScheduler() {
+        if (schedulerBuilder_ == null) {
+          scheduler_ = mesosphere.marathon.Protos.Scheduler.getDefaultInstance();
+          onChanged();
+        } else {
+          schedulerBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x08000000);
+        return this;
+      }
+      /**
+       * <code>optional .mesosphere.marathon.Scheduler scheduler = 36;</code>
+       */
+      public mesosphere.marathon.Protos.Scheduler.Builder getSchedulerBuilder() {
+        bitField0_ |= 0x08000000;
+        onChanged();
+        return getSchedulerFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .mesosphere.marathon.Scheduler scheduler = 36;</code>
+       */
+      public mesosphere.marathon.Protos.SchedulerOrBuilder getSchedulerOrBuilder() {
+        if (schedulerBuilder_ != null) {
+          return schedulerBuilder_.getMessageOrBuilder();
+        } else {
+          return scheduler_;
+        }
+      }
+      /**
+       * <code>optional .mesosphere.marathon.Scheduler scheduler = 36;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          mesosphere.marathon.Protos.Scheduler, mesosphere.marathon.Protos.Scheduler.Builder, mesosphere.marathon.Protos.SchedulerOrBuilder> 
+          getSchedulerFieldBuilder() {
+        if (schedulerBuilder_ == null) {
+          schedulerBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              mesosphere.marathon.Protos.Scheduler, mesosphere.marathon.Protos.Scheduler.Builder, mesosphere.marathon.Protos.SchedulerOrBuilder>(
+                  getScheduler(),
+                  getParentForChildren(),
+                  isClean());
+          scheduler_ = null;
+        }
+        return schedulerBuilder_;
+      }
+
       private java.util.List<mesosphere.marathon.Protos.Secret> secrets_ =
         java.util.Collections.emptyList();
       private void ensureSecretsIsMutable() {
-        if (!((bitField0_ & 0x08000000) == 0x08000000)) {
+        if (!((bitField0_ & 0x10000000) == 0x10000000)) {
           secrets_ = new java.util.ArrayList<mesosphere.marathon.Protos.Secret>(secrets_);
-          bitField0_ |= 0x08000000;
+          bitField0_ |= 0x10000000;
          }
       }
 
@@ -13989,7 +14190,7 @@ public final class Protos {
       public Builder clearSecrets() {
         if (secretsBuilder_ == null) {
           secrets_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x08000000);
+          bitField0_ = (bitField0_ & ~0x10000000);
           onChanged();
         } else {
           secretsBuilder_.clear();
@@ -14066,7 +14267,7 @@ public final class Protos {
           secretsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               mesosphere.marathon.Protos.Secret, mesosphere.marathon.Protos.Secret.Builder, mesosphere.marathon.Protos.SecretOrBuilder>(
                   secrets_,
-                  ((bitField0_ & 0x08000000) == 0x08000000),
+                  ((bitField0_ & 0x10000000) == 0x10000000),
                   getParentForChildren(),
                   isClean());
           secrets_ = null;
@@ -14077,9 +14278,9 @@ public final class Protos {
       private java.util.List<mesosphere.marathon.Protos.EnvVarReference> envVarReferences_ =
         java.util.Collections.emptyList();
       private void ensureEnvVarReferencesIsMutable() {
-        if (!((bitField0_ & 0x10000000) == 0x10000000)) {
+        if (!((bitField0_ & 0x20000000) == 0x20000000)) {
           envVarReferences_ = new java.util.ArrayList<mesosphere.marathon.Protos.EnvVarReference>(envVarReferences_);
-          bitField0_ |= 0x10000000;
+          bitField0_ |= 0x20000000;
          }
       }
 
@@ -14229,7 +14430,7 @@ public final class Protos {
       public Builder clearEnvVarReferences() {
         if (envVarReferencesBuilder_ == null) {
           envVarReferences_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x10000000);
+          bitField0_ = (bitField0_ & ~0x20000000);
           onChanged();
         } else {
           envVarReferencesBuilder_.clear();
@@ -14306,7 +14507,7 @@ public final class Protos {
           envVarReferencesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               mesosphere.marathon.Protos.EnvVarReference, mesosphere.marathon.Protos.EnvVarReference.Builder, mesosphere.marathon.Protos.EnvVarReferenceOrBuilder>(
                   envVarReferences_,
-                  ((bitField0_ & 0x10000000) == 0x10000000),
+                  ((bitField0_ & 0x20000000) == 0x20000000),
                   getParentForChildren(),
                   isClean());
           envVarReferences_ = null;
@@ -14323,7 +14524,7 @@ public final class Protos {
        * </pre>
        */
       public boolean hasTaskKillGracePeriod() {
-        return ((bitField0_ & 0x20000000) == 0x20000000);
+        return ((bitField0_ & 0x40000000) == 0x40000000);
       }
       /**
        * <code>optional int64 taskKillGracePeriod = 31;</code>
@@ -14343,7 +14544,7 @@ public final class Protos {
        * </pre>
        */
       public Builder setTaskKillGracePeriod(long value) {
-        bitField0_ |= 0x20000000;
+        bitField0_ |= 0x40000000;
         taskKillGracePeriod_ = value;
         onChanged();
         return this;
@@ -14356,7 +14557,7 @@ public final class Protos {
        * </pre>
        */
       public Builder clearTaskKillGracePeriod() {
-        bitField0_ = (bitField0_ & ~0x20000000);
+        bitField0_ = (bitField0_ & ~0x40000000);
         taskKillGracePeriod_ = 0L;
         onChanged();
         return this;
@@ -14369,7 +14570,7 @@ public final class Protos {
        * <code>optional .mesosphere.marathon.UnreachableStrategy unreachableStrategy = 32;</code>
        */
       public boolean hasUnreachableStrategy() {
-        return ((bitField0_ & 0x40000000) == 0x40000000);
+        return ((bitField0_ & 0x80000000) == 0x80000000);
       }
       /**
        * <code>optional .mesosphere.marathon.UnreachableStrategy unreachableStrategy = 32;</code>
@@ -14394,7 +14595,7 @@ public final class Protos {
         } else {
           unreachableStrategyBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x40000000;
+        bitField0_ |= 0x80000000;
         return this;
       }
       /**
@@ -14408,7 +14609,7 @@ public final class Protos {
         } else {
           unreachableStrategyBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x40000000;
+        bitField0_ |= 0x80000000;
         return this;
       }
       /**
@@ -14416,7 +14617,7 @@ public final class Protos {
        */
       public Builder mergeUnreachableStrategy(mesosphere.marathon.Protos.UnreachableStrategy value) {
         if (unreachableStrategyBuilder_ == null) {
-          if (((bitField0_ & 0x40000000) == 0x40000000) &&
+          if (((bitField0_ & 0x80000000) == 0x80000000) &&
               unreachableStrategy_ != mesosphere.marathon.Protos.UnreachableStrategy.getDefaultInstance()) {
             unreachableStrategy_ =
               mesosphere.marathon.Protos.UnreachableStrategy.newBuilder(unreachableStrategy_).mergeFrom(value).buildPartial();
@@ -14427,7 +14628,7 @@ public final class Protos {
         } else {
           unreachableStrategyBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x40000000;
+        bitField0_ |= 0x80000000;
         return this;
       }
       /**
@@ -14440,14 +14641,14 @@ public final class Protos {
         } else {
           unreachableStrategyBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x40000000);
+        bitField0_ = (bitField0_ & ~0x80000000);
         return this;
       }
       /**
        * <code>optional .mesosphere.marathon.UnreachableStrategy unreachableStrategy = 32;</code>
        */
       public mesosphere.marathon.Protos.UnreachableStrategy.Builder getUnreachableStrategyBuilder() {
-        bitField0_ |= 0x40000000;
+        bitField0_ |= 0x80000000;
         onChanged();
         return getUnreachableStrategyFieldBuilder().getBuilder();
       }
@@ -14483,7 +14684,7 @@ public final class Protos {
        * <code>optional .mesosphere.marathon.KillSelection killSelection = 33 [default = YoungestFirst];</code>
        */
       public boolean hasKillSelection() {
-        return ((bitField0_ & 0x80000000) == 0x80000000);
+        return ((bitField1_ & 0x00000001) == 0x00000001);
       }
       /**
        * <code>optional .mesosphere.marathon.KillSelection killSelection = 33 [default = YoungestFirst];</code>
@@ -14498,7 +14699,7 @@ public final class Protos {
         if (value == null) {
           throw new NullPointerException();
         }
-        bitField0_ |= 0x80000000;
+        bitField1_ |= 0x00000001;
         killSelection_ = value;
         onChanged();
         return this;
@@ -14507,7 +14708,7 @@ public final class Protos {
        * <code>optional .mesosphere.marathon.KillSelection killSelection = 33 [default = YoungestFirst];</code>
        */
       public Builder clearKillSelection() {
-        bitField0_ = (bitField0_ & ~0x80000000);
+        bitField1_ = (bitField1_ & ~0x00000001);
         killSelection_ = mesosphere.marathon.Protos.KillSelection.YoungestFirst;
         onChanged();
         return this;
@@ -14516,9 +14717,9 @@ public final class Protos {
       private java.util.List<mesosphere.marathon.Protos.NetworkDefinition> networks_ =
         java.util.Collections.emptyList();
       private void ensureNetworksIsMutable() {
-        if (!((bitField1_ & 0x00000001) == 0x00000001)) {
+        if (!((bitField1_ & 0x00000002) == 0x00000002)) {
           networks_ = new java.util.ArrayList<mesosphere.marathon.Protos.NetworkDefinition>(networks_);
-          bitField1_ |= 0x00000001;
+          bitField1_ |= 0x00000002;
          }
       }
 
@@ -14712,7 +14913,7 @@ public final class Protos {
       public Builder clearNetworks() {
         if (networksBuilder_ == null) {
           networks_ = java.util.Collections.emptyList();
-          bitField1_ = (bitField1_ & ~0x00000001);
+          bitField1_ = (bitField1_ & ~0x00000002);
           onChanged();
         } else {
           networksBuilder_.clear();
@@ -14817,7 +15018,7 @@ public final class Protos {
           networksBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               mesosphere.marathon.Protos.NetworkDefinition, mesosphere.marathon.Protos.NetworkDefinition.Builder, mesosphere.marathon.Protos.NetworkDefinitionOrBuilder>(
                   networks_,
-                  ((bitField1_ & 0x00000001) == 0x00000001),
+                  ((bitField1_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
                   isClean());
           networks_ = null;
@@ -14832,7 +15033,7 @@ public final class Protos {
        * <code>optional .mesos.TTYInfo tty = 35;</code>
        */
       public boolean hasTty() {
-        return ((bitField1_ & 0x00000002) == 0x00000002);
+        return ((bitField1_ & 0x00000004) == 0x00000004);
       }
       /**
        * <code>optional .mesos.TTYInfo tty = 35;</code>
@@ -14857,7 +15058,7 @@ public final class Protos {
         } else {
           ttyBuilder_.setMessage(value);
         }
-        bitField1_ |= 0x00000002;
+        bitField1_ |= 0x00000004;
         return this;
       }
       /**
@@ -14871,7 +15072,7 @@ public final class Protos {
         } else {
           ttyBuilder_.setMessage(builderForValue.build());
         }
-        bitField1_ |= 0x00000002;
+        bitField1_ |= 0x00000004;
         return this;
       }
       /**
@@ -14879,7 +15080,7 @@ public final class Protos {
        */
       public Builder mergeTty(org.apache.mesos.Protos.TTYInfo value) {
         if (ttyBuilder_ == null) {
-          if (((bitField1_ & 0x00000002) == 0x00000002) &&
+          if (((bitField1_ & 0x00000004) == 0x00000004) &&
               tty_ != org.apache.mesos.Protos.TTYInfo.getDefaultInstance()) {
             tty_ =
               org.apache.mesos.Protos.TTYInfo.newBuilder(tty_).mergeFrom(value).buildPartial();
@@ -14890,7 +15091,7 @@ public final class Protos {
         } else {
           ttyBuilder_.mergeFrom(value);
         }
-        bitField1_ |= 0x00000002;
+        bitField1_ |= 0x00000004;
         return this;
       }
       /**
@@ -14903,14 +15104,14 @@ public final class Protos {
         } else {
           ttyBuilder_.clear();
         }
-        bitField1_ = (bitField1_ & ~0x00000002);
+        bitField1_ = (bitField1_ & ~0x00000004);
         return this;
       }
       /**
        * <code>optional .mesos.TTYInfo tty = 35;</code>
        */
       public org.apache.mesos.Protos.TTYInfo.Builder getTtyBuilder() {
-        bitField1_ |= 0x00000002;
+        bitField1_ |= 0x00000004;
         onChanged();
         return getTtyFieldBuilder().getBuilder();
       }
@@ -46895,6 +47096,502 @@ public final class Protos {
     // @@protoc_insertion_point(class_scope:mesosphere.marathon.ResidencyDefinition)
   }
 
+  public interface SchedulerOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:mesosphere.marathon.Scheduler)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>required .mesosphere.marathon.Scheduler.SchedulerType schedulerType = 1;</code>
+     */
+    boolean hasSchedulerType();
+    /**
+     * <code>required .mesosphere.marathon.Scheduler.SchedulerType schedulerType = 1;</code>
+     */
+    mesosphere.marathon.Protos.Scheduler.SchedulerType getSchedulerType();
+  }
+  /**
+   * Protobuf type {@code mesosphere.marathon.Scheduler}
+   */
+  public static final class Scheduler extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:mesosphere.marathon.Scheduler)
+      SchedulerOrBuilder {
+    // Use Scheduler.newBuilder() to construct.
+    private Scheduler(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private Scheduler(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final Scheduler defaultInstance;
+    public static Scheduler getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public Scheduler getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Scheduler(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              int rawValue = input.readEnum();
+              mesosphere.marathon.Protos.Scheduler.SchedulerType value = mesosphere.marathon.Protos.Scheduler.SchedulerType.valueOf(rawValue);
+              if (value == null) {
+                unknownFields.mergeVarintField(1, rawValue);
+              } else {
+                bitField0_ |= 0x00000001;
+                schedulerType_ = value;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return mesosphere.marathon.Protos.internal_static_mesosphere_marathon_Scheduler_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return mesosphere.marathon.Protos.internal_static_mesosphere_marathon_Scheduler_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              mesosphere.marathon.Protos.Scheduler.class, mesosphere.marathon.Protos.Scheduler.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<Scheduler> PARSER =
+        new com.google.protobuf.AbstractParser<Scheduler>() {
+      public Scheduler parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Scheduler(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Scheduler> getParserForType() {
+      return PARSER;
+    }
+
+    /**
+     * Protobuf enum {@code mesosphere.marathon.Scheduler.SchedulerType}
+     */
+    public enum SchedulerType
+        implements com.google.protobuf.ProtocolMessageEnum {
+      /**
+       * <code>CONTINUOUS = 0;</code>
+       */
+      CONTINUOUS(0, 0),
+      /**
+       * <code>MANUAL = 1;</code>
+       */
+      MANUAL(1, 1),
+      ;
+
+      /**
+       * <code>CONTINUOUS = 0;</code>
+       */
+      public static final int CONTINUOUS_VALUE = 0;
+      /**
+       * <code>MANUAL = 1;</code>
+       */
+      public static final int MANUAL_VALUE = 1;
+
+
+      public final int getNumber() { return value; }
+
+      public static SchedulerType valueOf(int value) {
+        switch (value) {
+          case 0: return CONTINUOUS;
+          case 1: return MANUAL;
+          default: return null;
+        }
+      }
+
+      public static com.google.protobuf.Internal.EnumLiteMap<SchedulerType>
+          internalGetValueMap() {
+        return internalValueMap;
+      }
+      private static com.google.protobuf.Internal.EnumLiteMap<SchedulerType>
+          internalValueMap =
+            new com.google.protobuf.Internal.EnumLiteMap<SchedulerType>() {
+              public SchedulerType findValueByNumber(int number) {
+                return SchedulerType.valueOf(number);
+              }
+            };
+
+      public final com.google.protobuf.Descriptors.EnumValueDescriptor
+          getValueDescriptor() {
+        return getDescriptor().getValues().get(index);
+      }
+      public final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptorForType() {
+        return getDescriptor();
+      }
+      public static final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptor() {
+        return mesosphere.marathon.Protos.Scheduler.getDescriptor().getEnumTypes().get(0);
+      }
+
+      private static final SchedulerType[] VALUES = values();
+
+      public static SchedulerType valueOf(
+          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        if (desc.getType() != getDescriptor()) {
+          throw new java.lang.IllegalArgumentException(
+            "EnumValueDescriptor is not for this type.");
+        }
+        return VALUES[desc.getIndex()];
+      }
+
+      private final int index;
+      private final int value;
+
+      private SchedulerType(int index, int value) {
+        this.index = index;
+        this.value = value;
+      }
+
+      // @@protoc_insertion_point(enum_scope:mesosphere.marathon.Scheduler.SchedulerType)
+    }
+
+    private int bitField0_;
+    public static final int SCHEDULERTYPE_FIELD_NUMBER = 1;
+    private mesosphere.marathon.Protos.Scheduler.SchedulerType schedulerType_;
+    /**
+     * <code>required .mesosphere.marathon.Scheduler.SchedulerType schedulerType = 1;</code>
+     */
+    public boolean hasSchedulerType() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required .mesosphere.marathon.Scheduler.SchedulerType schedulerType = 1;</code>
+     */
+    public mesosphere.marathon.Protos.Scheduler.SchedulerType getSchedulerType() {
+      return schedulerType_;
+    }
+
+    private void initFields() {
+      schedulerType_ = mesosphere.marathon.Protos.Scheduler.SchedulerType.CONTINUOUS;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      if (!hasSchedulerType()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeEnum(1, schedulerType_.getNumber());
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(1, schedulerType_.getNumber());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static mesosphere.marathon.Protos.Scheduler parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static mesosphere.marathon.Protos.Scheduler parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static mesosphere.marathon.Protos.Scheduler parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static mesosphere.marathon.Protos.Scheduler parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static mesosphere.marathon.Protos.Scheduler parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static mesosphere.marathon.Protos.Scheduler parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static mesosphere.marathon.Protos.Scheduler parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static mesosphere.marathon.Protos.Scheduler parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static mesosphere.marathon.Protos.Scheduler parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static mesosphere.marathon.Protos.Scheduler parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(mesosphere.marathon.Protos.Scheduler prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code mesosphere.marathon.Scheduler}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:mesosphere.marathon.Scheduler)
+        mesosphere.marathon.Protos.SchedulerOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return mesosphere.marathon.Protos.internal_static_mesosphere_marathon_Scheduler_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return mesosphere.marathon.Protos.internal_static_mesosphere_marathon_Scheduler_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                mesosphere.marathon.Protos.Scheduler.class, mesosphere.marathon.Protos.Scheduler.Builder.class);
+      }
+
+      // Construct using mesosphere.marathon.Protos.Scheduler.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        schedulerType_ = mesosphere.marathon.Protos.Scheduler.SchedulerType.CONTINUOUS;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return mesosphere.marathon.Protos.internal_static_mesosphere_marathon_Scheduler_descriptor;
+      }
+
+      public mesosphere.marathon.Protos.Scheduler getDefaultInstanceForType() {
+        return mesosphere.marathon.Protos.Scheduler.getDefaultInstance();
+      }
+
+      public mesosphere.marathon.Protos.Scheduler build() {
+        mesosphere.marathon.Protos.Scheduler result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public mesosphere.marathon.Protos.Scheduler buildPartial() {
+        mesosphere.marathon.Protos.Scheduler result = new mesosphere.marathon.Protos.Scheduler(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.schedulerType_ = schedulerType_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof mesosphere.marathon.Protos.Scheduler) {
+          return mergeFrom((mesosphere.marathon.Protos.Scheduler)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(mesosphere.marathon.Protos.Scheduler other) {
+        if (other == mesosphere.marathon.Protos.Scheduler.getDefaultInstance()) return this;
+        if (other.hasSchedulerType()) {
+          setSchedulerType(other.getSchedulerType());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        if (!hasSchedulerType()) {
+          
+          return false;
+        }
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        mesosphere.marathon.Protos.Scheduler parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (mesosphere.marathon.Protos.Scheduler) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private mesosphere.marathon.Protos.Scheduler.SchedulerType schedulerType_ = mesosphere.marathon.Protos.Scheduler.SchedulerType.CONTINUOUS;
+      /**
+       * <code>required .mesosphere.marathon.Scheduler.SchedulerType schedulerType = 1;</code>
+       */
+      public boolean hasSchedulerType() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>required .mesosphere.marathon.Scheduler.SchedulerType schedulerType = 1;</code>
+       */
+      public mesosphere.marathon.Protos.Scheduler.SchedulerType getSchedulerType() {
+        return schedulerType_;
+      }
+      /**
+       * <code>required .mesosphere.marathon.Scheduler.SchedulerType schedulerType = 1;</code>
+       */
+      public Builder setSchedulerType(mesosphere.marathon.Protos.Scheduler.SchedulerType value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000001;
+        schedulerType_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required .mesosphere.marathon.Scheduler.SchedulerType schedulerType = 1;</code>
+       */
+      public Builder clearSchedulerType() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        schedulerType_ = mesosphere.marathon.Protos.Scheduler.SchedulerType.CONTINUOUS;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:mesosphere.marathon.Scheduler)
+    }
+
+    static {
+      defaultInstance = new Scheduler(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:mesosphere.marathon.Scheduler)
+  }
+
   public interface SecretOrBuilder extends
       // @@protoc_insertion_point(interface_extends:mesosphere.marathon.Secret)
       com.google.protobuf.MessageOrBuilder {
@@ -49066,6 +49763,11 @@ public final class Protos {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_mesosphere_marathon_ResidencyDefinition_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_mesosphere_marathon_Scheduler_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_mesosphere_marathon_Scheduler_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_mesosphere_marathon_Secret_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -49124,7 +49826,7 @@ public final class Protos {
       "e.marathon.NetworkDefinition.Mode\022\014\n\004nam" +
       "e\030\002 \001(\t\022\034\n\006labels\030\003 \003(\0132\014.mesos.Label\"8\n" +
       "\004Mode\022\013\n\007UNKNOWN\020\000\022\010\n\004HOST\020\001\022\r\n\tCONTAINE" +
-      "R\020\002\022\n\n\006BRIDGE\020\003\"\276\013\n\021ServiceDefinition\022\n\n" +
+      "R\020\002\022\n\n\006BRIDGE\020\003\"\361\013\n\021ServiceDefinition\022\n\n" +
       "\002id\030\001 \002(\t\022\037\n\003cmd\030\002 \002(\0132\022.mesos.CommandIn" +
       "fo\022\021\n\tinstances\030\003 \002(\r\022\"\n\tresources\030\004 \003(\013" +
       "2\017.mesos.Resource\022\023\n\013description\030\005 \001(\t\022\r" +
@@ -49151,153 +49853,158 @@ public final class Protos {
       "esosphere.marathon.ResidencyDefinition\022$",
       "\n\017portDefinitions\030\033 \003(\0132\013.mesos.Port\022O\n\030" +
       "readinessCheckDefinition\030\034 \003(\0132-.mesosph" +
-      "ere.marathon.ReadinessCheckDefinition\022,\n" +
-      "\007secrets\030\035 \003(\0132\033.mesosphere.marathon.Sec" +
-      "ret\022>\n\020envVarReferences\030\036 \003(\0132$.mesosphe" +
-      "re.marathon.EnvVarReference\022\033\n\023taskKillG" +
-      "racePeriod\030\037 \001(\003\022E\n\023unreachableStrategy\030" +
-      "  \001(\0132(.mesosphere.marathon.UnreachableS" +
-      "trategy\022H\n\rkillSelection\030! \001(\0162\".mesosph" +
-      "ere.marathon.KillSelection:\rYoungestFirs",
-      "t\0228\n\010networks\030\" \003(\0132&.mesosphere.maratho" +
-      "n.NetworkDefinition\022\033\n\003tty\030# \001(\0132\016.mesos" +
-      ".TTYInfo\"]\n\023UnreachableStrategy\022!\n\024inact" +
-      "iveAfterSeconds\030\001 \001(\004:\003900\022#\n\023expungeAft" +
-      "erSeconds\030\002 \001(\004:\006604800\"\024\n\004Json\022\014\n\004json\030" +
-      "\001 \002(\t\"\035\n\rResourceRoles\022\014\n\004role\030\001 \003(\t\"\346\t\n" +
-      "\014MarathonTask\022\n\n\002id\030\001 \002(\t\022\025\n\rOBSOLETE_ho" +
-      "st\030\002 \001(\t\022\r\n\005ports\030\003 \003(\r\022-\n\023OBSOLETE_attr" +
-      "ibutes\030\004 \003(\0132\020.mesos.Attribute\022\021\n\tstaged" +
-      "_at\030\005 \001(\003\022\022\n\nstarted_at\030\006 \001(\003\022,\n\021OBSOLET",
-      "E_statuses\030\007 \003(\0132\021.mesos.TaskStatus\022)\n\007v" +
-      "ersion\030\010 \001(\t:\0301970-01-01T00:00:00.000Z\022!" +
-      "\n\006status\030\t \001(\0132\021.mesos.TaskStatus\022(\n\020OBS" +
-      "OLETE_slaveId\030\n \001(\0132\016.mesos.SlaveID\022-\n\021O" +
-      "BSOLETE_networks\030\013 \003(\0132\022.mesos.NetworkIn" +
-      "fo\022B\n\013reservation\030\014 \001(\0132-.mesosphere.mar" +
-      "athon.MarathonTask.Reservation\022>\n\tcondit" +
-      "ion\030\r \001(\0162+.mesosphere.marathon.Marathon" +
-      "Task.Condition\032\231\004\n\013Reservation\022\030\n\020local_" +
-      "volume_ids\030\001 \003(\t\022B\n\005state\030\002 \002(\01323.mesosp",
-      "here.marathon.MarathonTask.Reservation.S" +
-      "tate\032\253\003\n\005State\022F\n\004type\030\001 \002(\01628.mesospher" +
-      "e.marathon.MarathonTask.Reservation.Stat" +
-      "e.Type\022L\n\007timeout\030\002 \001(\0132;.mesosphere.mar" +
-      "athon.MarathonTask.Reservation.State.Tim" +
-      "eout\032\303\001\n\007Timeout\022\021\n\tinitiated\030\001 \002(\003\022\020\n\010d" +
-      "eadline\030\002 \002(\003\022R\n\006reason\030\003 \002(\0162B.mesosphe" +
-      "re.marathon.MarathonTask.Reservation.Sta" +
-      "te.Timeout.Reason\"?\n\006Reason\022\035\n\031RelaunchE" +
-      "scalationTimeout\020\001\022\026\n\022ReservationTimeout",
-      "\020\002\"F\n\004Type\022\007\n\003New\020\001\022\014\n\010Launched\020\002\022\r\n\tSus" +
-      "pended\020\003\022\013\n\007Garbage\020\004\022\013\n\007Unknown\020\005\"\330\001\n\tC" +
-      "ondition\022\013\n\007Invalid\020\000\022\014\n\010Reserved\020\001\022\013\n\007C" +
-      "reated\020\002\022\t\n\005Error\020\003\022\n\n\006Failed\020\004\022\014\n\010Finis" +
-      "hed\020\005\022\n\n\006Killed\020\006\022\013\n\007Killing\020\007\022\010\n\004Lost\020\010" +
-      "\022\013\n\007Running\020\t\022\013\n\007Staging\020\n\022\014\n\010Starting\020\013" +
-      "\022\017\n\013Unreachable\020\014\022\010\n\004Gone\020\r\022\013\n\007Unknown\020\016" +
-      "\022\013\n\007Dropped\020\017\"M\n\013MarathonApp\022\014\n\004name\030\001 \001" +
-      "(\t\0220\n\005tasks\030\002 \003(\0132!.mesosphere.marathon." +
-      "MarathonTask\"1\n\rContainerInfo\022\017\n\005image\030\001",
-      " \002(\014:\000\022\017\n\007options\030\002 \003(\014\"\356\013\n\025ExtendedCont" +
-      "ainerInfo\022\'\n\004type\030\001 \002(\0162\031.mesos.Containe" +
-      "rInfo.Type\022,\n\007volumes\030\002 \003(\0132\033.mesosphere" +
-      ".marathon.Volume\022M\n\rport_mappings\030\006 \003(\0132" +
-      "6.mesosphere.marathon.ExtendedContainerI" +
-      "nfo.PortMapping\022E\n\006docker\030\003 \001(\01325.mesosp" +
-      "here.marathon.ExtendedContainerInfo.Dock" +
-      "erInfo\022O\n\013mesosDocker\030\004 \001(\0132:.mesosphere" +
-      ".marathon.ExtendedContainerInfo.MesosDoc" +
-      "kerInfo\022K\n\tmesosAppC\030\005 \001(\01328.mesosphere.",
-      "marathon.ExtendedContainerInfo.MesosAppC" +
-      "Info\032\361\004\n\nDockerInfo\022\r\n\005image\030\001 \002(\t\022G\n\020OB" +
-      "SOLETE_network\030\002 \001(\0162\'.mesos.ContainerIn" +
-      "fo.DockerInfo.Network:\004HOST\022o\n\026OBSOLETE_" +
-      "port_mappings\030\003 \003(\0132O.mesosphere.maratho" +
-      "n.ExtendedContainerInfo.DockerInfo.Obsol" +
-      "eteDockerPortMapping\022\031\n\nprivileged\030\004 \001(\010" +
-      ":\005false\022$\n\nparameters\030\005 \003(\0132\020.mesos.Para" +
-      "meter\022\030\n\020force_pull_image\030\006 \001(\010\032\236\001\n\017Imag" +
-      "ePullConfig\022X\n\004type\030\001 \002(\0162J.mesosphere.m",
-      "arathon.ExtendedContainerInfo.DockerInfo" +
-      ".ImagePullConfig.Type\022\035\n\006secret\030\002 \001(\0132\r." +
-      "mesos.Secret\"\022\n\004Type\022\n\n\006SECRET\020\001\032\235\001\n\031Obs" +
-      "oleteDockerPortMapping\022\021\n\thost_port\030\001 \001(" +
-      "\r\022\026\n\016container_port\030\002 \002(\r\022\020\n\010protocol\030\003 " +
-      "\001(\t\022\014\n\004name\030\004 \001(\t\022\034\n\006labels\030\005 \003(\0132\014.meso" +
-      "s.Label\022\027\n\014service_port\030d \001(\r:\0010\032\310\001\n\017Mes" +
-      "osDockerInfo\022\r\n\005image\030\001 \002(\t\0220\n\025deprecate" +
-      "d_credential\030\002 \001(\0132\021.mesos.Credential\022\030\n" +
-      "\020force_pull_image\030\003 \001(\010\022Z\n\013pull_config\030\004",
-      " \001(\0132E.mesosphere.marathon.ExtendedConta" +
-      "inerInfo.DockerInfo.ImagePullConfig\032b\n\rM" +
-      "esosAppCInfo\022\r\n\005image\030\001 \002(\t\022\n\n\002id\030\002 \001(\t\022" +
-      "\034\n\006labels\030\003 \003(\0132\014.mesos.Label\022\030\n\020force_p" +
-      "ull_image\030\004 \001(\010\032\246\001\n\013PortMapping\022\021\n\thost_" +
-      "port\030\001 \001(\r\022\026\n\016container_port\030\002 \002(\r\022\020\n\010pr" +
-      "otocol\030\003 \001(\t\022\014\n\004name\030\004 \001(\t\022\034\n\006labels\030\005 \003" +
-      "(\0132\014.mesos.Label\022\027\n\014service_port\030\006 \001(\r:\001" +
-      "0\022\025\n\rnetwork_names\030\007 \003(\t\"\341\004\n\006Volume\022 \n\004m" +
-      "ode\030\003 \002(\0162\022.mesos.Volume.Mode\022\026\n\016contain",
-      "er_path\030\001 \002(\t\022\021\n\thost_path\030\002 \001(\t\022\033\n\005imag" +
-      "e\030\004 \001(\0132\014.mesos.Image\022D\n\npersistent\030\005 \001(" +
-      "\01320.mesosphere.marathon.Volume.Persisten" +
-      "tVolumeInfo\022@\n\010external\030\006 \001(\0132..mesosphe" +
-      "re.marathon.Volume.ExternalVolumeInfo\022<\n" +
-      "\006secret\030\007 \001(\0132,.mesosphere.marathon.Volu" +
-      "me.SecretVolumeInfo\032\237\001\n\024PersistentVolume" +
-      "Info\022\014\n\004size\030\001 \002(\004\0222\n\004type\030\002 \001(\0162$.mesos" +
-      ".Resource.DiskInfo.Source.Type\0224\n\013constr" +
-      "aints\030\003 \003(\0132\037.mesosphere.marathon.Constr",
-      "aint\022\017\n\007maxSize\030\004 \001(\004\032a\n\022ExternalVolumeI" +
-      "nfo\022\014\n\004size\030\001 \001(\004\022\014\n\004name\030\002 \002(\t\022\020\n\010provi" +
-      "der\030\003 \002(\t\022\035\n\007options\030\004 \003(\0132\014.mesos.Label" +
-      "\032\"\n\020SecretVolumeInfo\022\016\n\006secret\030\001 \002(\t\"\274\001\n" +
-      "\016StorageVersion\022\r\n\005major\030\001 \002(\r\022\r\n\005minor\030" +
-      "\002 \002(\r\022\r\n\005patch\030\003 \002(\r\022I\n\006format\030\004 \001(\01621.m" +
-      "esosphere.marathon.StorageVersion.Storag" +
-      "eFormat:\006LEGACY\"2\n\rStorageFormat\022\n\n\006LEGA" +
-      "CY\020\000\022\025\n\021PERSISTENCE_STORE\020\001\"Z\n\031UpgradeSt" +
-      "rategyDefinition\022\035\n\025minimumHealthCapacit",
-      "y\030\001 \002(\001\022\036\n\023maximumOverCapacity\030\002 \001(\001:\0011\"" +
-      "\236\003\n\017GroupDefinition\022\n\n\002id\030\001 \002(\t\022\017\n\007versi" +
-      "on\030\002 \002(\t\022?\n\017deprecated_apps\030\003 \003(\0132&.meso" +
-      "sphere.marathon.ServiceDefinition\0222\n\017dep" +
-      "recated_pods\030\010 \003(\0132\031.mesosphere.marathon" +
-      ".Json\0224\n\006groups\030\004 \003(\0132$.mesosphere.marat" +
-      "hon.GroupDefinition\022\024\n\014dependencies\030\005 \003(" +
-      "\t\022?\n\004apps\030\006 \003(\01321.mesosphere.marathon.Gr" +
-      "oupDefinition.AppReference\022?\n\004pods\030\007 \003(\013" +
-      "21.mesosphere.marathon.GroupDefinition.A",
-      "ppReference\032+\n\014AppReference\022\n\n\002id\030\001 \002(\t\022" +
-      "\017\n\007version\030\002 \002(\t\"\371\001\n\030DeploymentPlanDefin" +
-      "ition\022\n\n\002id\030\001 \002(\t\022\021\n\ttimestamp\030\002 \001(\t\022A\n\023" +
-      "deprecated_original\030\004 \001(\0132$.mesosphere.m" +
-      "arathon.GroupDefinition\022?\n\021deprecated_ta" +
-      "rget\030\005 \001(\0132$.mesosphere.marathon.GroupDe" +
-      "finition\022\035\n\025original_root_version\030\006 \001(\t\022" +
-      "\033\n\023target_root_version\030\007 \001(\t\"\306\001\n\013TaskFai" +
-      "lure\022\016\n\006app_id\030\001 \002(\t\022\036\n\007task_id\030\002 \002(\0132\r." +
-      "mesos.TaskID\022\037\n\005state\030\003 \002(\0162\020.mesos.Task",
-      "State\022\021\n\007message\030\004 \001(\t:\000\022\016\n\004host\030\005 \001(\t:\000" +
-      "\022\017\n\007version\030\006 \002(\t\022\021\n\ttimestamp\030\007 \002(\t\022\037\n\007" +
-      "slaveId\030\010 \001(\0132\016.mesos.SlaveID\"T\n\014ZKStore" +
-      "Entry\022\014\n\004name\030\001 \002(\t\022\014\n\004uuid\030\002 \002(\014\022\r\n\005val" +
-      "ue\030\003 \002(\014\022\031\n\ncompressed\030\004 \001(\010:\005false\"\326\001\n\023" +
-      "ResidencyDefinition\022(\n relaunchEscalatio" +
-      "nTimeoutSeconds\030\001 \001(\003\022S\n\020taskLostBehavio" +
-      "r\030\002 \001(\01629.mesosphere.marathon.ResidencyD" +
-      "efinition.TaskLostBehavior\"@\n\020TaskLostBe" +
-      "havior\022\032\n\026RELAUNCH_AFTER_TIMEOUT\020\000\022\020\n\014WA",
-      "IT_FOREVER\020\001\"$\n\006Secret\022\n\n\002id\030\001 \002(\t\022\016\n\006so" +
-      "urce\030\002 \002(\t\"\262\001\n\017EnvVarReference\0227\n\004type\030\001" +
-      " \002(\0162).mesosphere.marathon.EnvVarReferen" +
-      "ce.Type\022\014\n\004name\030\002 \002(\t\0227\n\tsecretRef\030\003 \001(\013" +
-      "2$.mesosphere.marathon.EnvVarSecretRef\"\037" +
-      "\n\004Type\022\013\n\007UNKNOWN\020\000\022\n\n\006SECRET\020\001\"#\n\017EnvVa" +
-      "rSecretRef\022\020\n\010secretId\030\001 \002(\t*3\n\rKillSele" +
-      "ction\022\021\n\rYoungestFirst\020\001\022\017\n\013OldestFirst\020" +
-      "\002B\035\n\023mesosphere.marathonB\006Protos"
+      "ere.marathon.ReadinessCheckDefinition\0221\n" +
+      "\tscheduler\030$ \001(\0132\036.mesosphere.marathon.S" +
+      "cheduler\022,\n\007secrets\030\035 \003(\0132\033.mesosphere.m" +
+      "arathon.Secret\022>\n\020envVarReferences\030\036 \003(\013" +
+      "2$.mesosphere.marathon.EnvVarReference\022\033" +
+      "\n\023taskKillGracePeriod\030\037 \001(\003\022E\n\023unreachab" +
+      "leStrategy\030  \001(\0132(.mesosphere.marathon.U" +
+      "nreachableStrategy\022H\n\rkillSelection\030! \001(",
+      "\0162\".mesosphere.marathon.KillSelection:\rY" +
+      "oungestFirst\0228\n\010networks\030\" \003(\0132&.mesosph" +
+      "ere.marathon.NetworkDefinition\022\033\n\003tty\030# " +
+      "\001(\0132\016.mesos.TTYInfo\"]\n\023UnreachableStrate" +
+      "gy\022!\n\024inactiveAfterSeconds\030\001 \001(\004:\003900\022#\n" +
+      "\023expungeAfterSeconds\030\002 \001(\004:\006604800\"\024\n\004Js" +
+      "on\022\014\n\004json\030\001 \002(\t\"\035\n\rResourceRoles\022\014\n\004rol" +
+      "e\030\001 \003(\t\"\346\t\n\014MarathonTask\022\n\n\002id\030\001 \002(\t\022\025\n\r" +
+      "OBSOLETE_host\030\002 \001(\t\022\r\n\005ports\030\003 \003(\r\022-\n\023OB" +
+      "SOLETE_attributes\030\004 \003(\0132\020.mesos.Attribut",
+      "e\022\021\n\tstaged_at\030\005 \001(\003\022\022\n\nstarted_at\030\006 \001(\003" +
+      "\022,\n\021OBSOLETE_statuses\030\007 \003(\0132\021.mesos.Task" +
+      "Status\022)\n\007version\030\010 \001(\t:\0301970-01-01T00:0" +
+      "0:00.000Z\022!\n\006status\030\t \001(\0132\021.mesos.TaskSt" +
+      "atus\022(\n\020OBSOLETE_slaveId\030\n \001(\0132\016.mesos.S" +
+      "laveID\022-\n\021OBSOLETE_networks\030\013 \003(\0132\022.meso" +
+      "s.NetworkInfo\022B\n\013reservation\030\014 \001(\0132-.mes" +
+      "osphere.marathon.MarathonTask.Reservatio" +
+      "n\022>\n\tcondition\030\r \001(\0162+.mesosphere.marath" +
+      "on.MarathonTask.Condition\032\231\004\n\013Reservatio",
+      "n\022\030\n\020local_volume_ids\030\001 \003(\t\022B\n\005state\030\002 \002" +
+      "(\01323.mesosphere.marathon.MarathonTask.Re" +
+      "servation.State\032\253\003\n\005State\022F\n\004type\030\001 \002(\0162" +
+      "8.mesosphere.marathon.MarathonTask.Reser" +
+      "vation.State.Type\022L\n\007timeout\030\002 \001(\0132;.mes" +
+      "osphere.marathon.MarathonTask.Reservatio" +
+      "n.State.Timeout\032\303\001\n\007Timeout\022\021\n\tinitiated" +
+      "\030\001 \002(\003\022\020\n\010deadline\030\002 \002(\003\022R\n\006reason\030\003 \002(\016" +
+      "2B.mesosphere.marathon.MarathonTask.Rese" +
+      "rvation.State.Timeout.Reason\"?\n\006Reason\022\035",
+      "\n\031RelaunchEscalationTimeout\020\001\022\026\n\022Reserva" +
+      "tionTimeout\020\002\"F\n\004Type\022\007\n\003New\020\001\022\014\n\010Launch" +
+      "ed\020\002\022\r\n\tSuspended\020\003\022\013\n\007Garbage\020\004\022\013\n\007Unkn" +
+      "own\020\005\"\330\001\n\tCondition\022\013\n\007Invalid\020\000\022\014\n\010Rese" +
+      "rved\020\001\022\013\n\007Created\020\002\022\t\n\005Error\020\003\022\n\n\006Failed" +
+      "\020\004\022\014\n\010Finished\020\005\022\n\n\006Killed\020\006\022\013\n\007Killing\020" +
+      "\007\022\010\n\004Lost\020\010\022\013\n\007Running\020\t\022\013\n\007Staging\020\n\022\014\n" +
+      "\010Starting\020\013\022\017\n\013Unreachable\020\014\022\010\n\004Gone\020\r\022\013" +
+      "\n\007Unknown\020\016\022\013\n\007Dropped\020\017\"M\n\013MarathonApp\022" +
+      "\014\n\004name\030\001 \001(\t\0220\n\005tasks\030\002 \003(\0132!.mesospher",
+      "e.marathon.MarathonTask\"1\n\rContainerInfo" +
+      "\022\017\n\005image\030\001 \002(\014:\000\022\017\n\007options\030\002 \003(\014\"\356\013\n\025E" +
+      "xtendedContainerInfo\022\'\n\004type\030\001 \002(\0162\031.mes" +
+      "os.ContainerInfo.Type\022,\n\007volumes\030\002 \003(\0132\033" +
+      ".mesosphere.marathon.Volume\022M\n\rport_mapp" +
+      "ings\030\006 \003(\01326.mesosphere.marathon.Extende" +
+      "dContainerInfo.PortMapping\022E\n\006docker\030\003 \001" +
+      "(\01325.mesosphere.marathon.ExtendedContain" +
+      "erInfo.DockerInfo\022O\n\013mesosDocker\030\004 \001(\0132:" +
+      ".mesosphere.marathon.ExtendedContainerIn",
+      "fo.MesosDockerInfo\022K\n\tmesosAppC\030\005 \001(\01328." +
+      "mesosphere.marathon.ExtendedContainerInf" +
+      "o.MesosAppCInfo\032\361\004\n\nDockerInfo\022\r\n\005image\030" +
+      "\001 \002(\t\022G\n\020OBSOLETE_network\030\002 \001(\0162\'.mesos." +
+      "ContainerInfo.DockerInfo.Network:\004HOST\022o" +
+      "\n\026OBSOLETE_port_mappings\030\003 \003(\0132O.mesosph" +
+      "ere.marathon.ExtendedContainerInfo.Docke" +
+      "rInfo.ObsoleteDockerPortMapping\022\031\n\nprivi" +
+      "leged\030\004 \001(\010:\005false\022$\n\nparameters\030\005 \003(\0132\020" +
+      ".mesos.Parameter\022\030\n\020force_pull_image\030\006 \001",
+      "(\010\032\236\001\n\017ImagePullConfig\022X\n\004type\030\001 \002(\0162J.m" +
+      "esosphere.marathon.ExtendedContainerInfo" +
+      ".DockerInfo.ImagePullConfig.Type\022\035\n\006secr" +
+      "et\030\002 \001(\0132\r.mesos.Secret\"\022\n\004Type\022\n\n\006SECRE" +
+      "T\020\001\032\235\001\n\031ObsoleteDockerPortMapping\022\021\n\thos" +
+      "t_port\030\001 \001(\r\022\026\n\016container_port\030\002 \002(\r\022\020\n\010" +
+      "protocol\030\003 \001(\t\022\014\n\004name\030\004 \001(\t\022\034\n\006labels\030\005" +
+      " \003(\0132\014.mesos.Label\022\027\n\014service_port\030d \001(\r" +
+      ":\0010\032\310\001\n\017MesosDockerInfo\022\r\n\005image\030\001 \002(\t\0220" +
+      "\n\025deprecated_credential\030\002 \001(\0132\021.mesos.Cr",
+      "edential\022\030\n\020force_pull_image\030\003 \001(\010\022Z\n\013pu" +
+      "ll_config\030\004 \001(\0132E.mesosphere.marathon.Ex" +
+      "tendedContainerInfo.DockerInfo.ImagePull" +
+      "Config\032b\n\rMesosAppCInfo\022\r\n\005image\030\001 \002(\t\022\n" +
+      "\n\002id\030\002 \001(\t\022\034\n\006labels\030\003 \003(\0132\014.mesos.Label" +
+      "\022\030\n\020force_pull_image\030\004 \001(\010\032\246\001\n\013PortMappi" +
+      "ng\022\021\n\thost_port\030\001 \001(\r\022\026\n\016container_port\030" +
+      "\002 \002(\r\022\020\n\010protocol\030\003 \001(\t\022\014\n\004name\030\004 \001(\t\022\034\n" +
+      "\006labels\030\005 \003(\0132\014.mesos.Label\022\027\n\014service_p" +
+      "ort\030\006 \001(\r:\0010\022\025\n\rnetwork_names\030\007 \003(\t\"\341\004\n\006",
+      "Volume\022 \n\004mode\030\003 \002(\0162\022.mesos.Volume.Mode" +
+      "\022\026\n\016container_path\030\001 \002(\t\022\021\n\thost_path\030\002 " +
+      "\001(\t\022\033\n\005image\030\004 \001(\0132\014.mesos.Image\022D\n\npers" +
+      "istent\030\005 \001(\01320.mesosphere.marathon.Volum" +
+      "e.PersistentVolumeInfo\022@\n\010external\030\006 \001(\013" +
+      "2..mesosphere.marathon.Volume.ExternalVo" +
+      "lumeInfo\022<\n\006secret\030\007 \001(\0132,.mesosphere.ma" +
+      "rathon.Volume.SecretVolumeInfo\032\237\001\n\024Persi" +
+      "stentVolumeInfo\022\014\n\004size\030\001 \002(\004\0222\n\004type\030\002 " +
+      "\001(\0162$.mesos.Resource.DiskInfo.Source.Typ",
+      "e\0224\n\013constraints\030\003 \003(\0132\037.mesosphere.mara" +
+      "thon.Constraint\022\017\n\007maxSize\030\004 \001(\004\032a\n\022Exte" +
+      "rnalVolumeInfo\022\014\n\004size\030\001 \001(\004\022\014\n\004name\030\002 \002" +
+      "(\t\022\020\n\010provider\030\003 \002(\t\022\035\n\007options\030\004 \003(\0132\014." +
+      "mesos.Label\032\"\n\020SecretVolumeInfo\022\016\n\006secre" +
+      "t\030\001 \002(\t\"\274\001\n\016StorageVersion\022\r\n\005major\030\001 \002(" +
+      "\r\022\r\n\005minor\030\002 \002(\r\022\r\n\005patch\030\003 \002(\r\022I\n\006forma" +
+      "t\030\004 \001(\01621.mesosphere.marathon.StorageVer" +
+      "sion.StorageFormat:\006LEGACY\"2\n\rStorageFor" +
+      "mat\022\n\n\006LEGACY\020\000\022\025\n\021PERSISTENCE_STORE\020\001\"Z",
+      "\n\031UpgradeStrategyDefinition\022\035\n\025minimumHe" +
+      "althCapacity\030\001 \002(\001\022\036\n\023maximumOverCapacit" +
+      "y\030\002 \001(\001:\0011\"\236\003\n\017GroupDefinition\022\n\n\002id\030\001 \002" +
+      "(\t\022\017\n\007version\030\002 \002(\t\022?\n\017deprecated_apps\030\003" +
+      " \003(\0132&.mesosphere.marathon.ServiceDefini" +
+      "tion\0222\n\017deprecated_pods\030\010 \003(\0132\031.mesosphe" +
+      "re.marathon.Json\0224\n\006groups\030\004 \003(\0132$.mesos" +
+      "phere.marathon.GroupDefinition\022\024\n\014depend" +
+      "encies\030\005 \003(\t\022?\n\004apps\030\006 \003(\01321.mesosphere." +
+      "marathon.GroupDefinition.AppReference\022?\n",
+      "\004pods\030\007 \003(\01321.mesosphere.marathon.GroupD" +
+      "efinition.AppReference\032+\n\014AppReference\022\n" +
+      "\n\002id\030\001 \002(\t\022\017\n\007version\030\002 \002(\t\"\371\001\n\030Deployme" +
+      "ntPlanDefinition\022\n\n\002id\030\001 \002(\t\022\021\n\ttimestam" +
+      "p\030\002 \001(\t\022A\n\023deprecated_original\030\004 \001(\0132$.m" +
+      "esosphere.marathon.GroupDefinition\022?\n\021de" +
+      "precated_target\030\005 \001(\0132$.mesosphere.marat" +
+      "hon.GroupDefinition\022\035\n\025original_root_ver" +
+      "sion\030\006 \001(\t\022\033\n\023target_root_version\030\007 \001(\t\"" +
+      "\306\001\n\013TaskFailure\022\016\n\006app_id\030\001 \002(\t\022\036\n\007task_",
+      "id\030\002 \002(\0132\r.mesos.TaskID\022\037\n\005state\030\003 \002(\0162\020" +
+      ".mesos.TaskState\022\021\n\007message\030\004 \001(\t:\000\022\016\n\004h" +
+      "ost\030\005 \001(\t:\000\022\017\n\007version\030\006 \002(\t\022\021\n\ttimestam" +
+      "p\030\007 \002(\t\022\037\n\007slaveId\030\010 \001(\0132\016.mesos.SlaveID" +
+      "\"T\n\014ZKStoreEntry\022\014\n\004name\030\001 \002(\t\022\014\n\004uuid\030\002" +
+      " \002(\014\022\r\n\005value\030\003 \002(\014\022\031\n\ncompressed\030\004 \001(\010:" +
+      "\005false\"\326\001\n\023ResidencyDefinition\022(\n relaun" +
+      "chEscalationTimeoutSeconds\030\001 \001(\003\022S\n\020task" +
+      "LostBehavior\030\002 \001(\01629.mesosphere.marathon" +
+      ".ResidencyDefinition.TaskLostBehavior\"@\n",
+      "\020TaskLostBehavior\022\032\n\026RELAUNCH_AFTER_TIME" +
+      "OUT\020\000\022\020\n\014WAIT_FOREVER\020\001\"}\n\tScheduler\022C\n\r" +
+      "schedulerType\030\001 \002(\0162,.mesosphere.maratho" +
+      "n.Scheduler.SchedulerType\"+\n\rSchedulerTy" +
+      "pe\022\016\n\nCONTINUOUS\020\000\022\n\n\006MANUAL\020\001\"$\n\006Secret" +
+      "\022\n\n\002id\030\001 \002(\t\022\016\n\006source\030\002 \002(\t\"\262\001\n\017EnvVarR" +
+      "eference\0227\n\004type\030\001 \002(\0162).mesosphere.mara" +
+      "thon.EnvVarReference.Type\022\014\n\004name\030\002 \002(\t\022" +
+      "7\n\tsecretRef\030\003 \001(\0132$.mesosphere.marathon" +
+      ".EnvVarSecretRef\"\037\n\004Type\022\013\n\007UNKNOWN\020\000\022\n\n",
+      "\006SECRET\020\001\"#\n\017EnvVarSecretRef\022\020\n\010secretId" +
+      "\030\001 \002(\t*3\n\rKillSelection\022\021\n\rYoungestFirst" +
+      "\020\001\022\017\n\013OldestFirst\020\002B\035\n\023mesosphere.marath" +
+      "onB\006Protos"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -49353,7 +50060,7 @@ public final class Protos {
     internal_static_mesosphere_marathon_ServiceDefinition_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_mesosphere_marathon_ServiceDefinition_descriptor,
-        new java.lang.String[] { "Id", "Cmd", "Instances", "Resources", "Description", "Ports", "Constraints", "Executor", "OBSOLETEContainer", "Version", "HealthChecks", "Backoff", "BackoffFactor", "UpgradeStrategy", "Dependencies", "StoreUrls", "RequirePorts", "Container", "Labels", "MaxLaunchDelay", "AcceptedResourceRoles", "LastScalingAt", "LastConfigChangeAt", "OBSOLETEIpAddress", "Residency", "PortDefinitions", "ReadinessCheckDefinition", "Secrets", "EnvVarReferences", "TaskKillGracePeriod", "UnreachableStrategy", "KillSelection", "Networks", "Tty", });
+        new java.lang.String[] { "Id", "Cmd", "Instances", "Resources", "Description", "Ports", "Constraints", "Executor", "OBSOLETEContainer", "Version", "HealthChecks", "Backoff", "BackoffFactor", "UpgradeStrategy", "Dependencies", "StoreUrls", "RequirePorts", "Container", "Labels", "MaxLaunchDelay", "AcceptedResourceRoles", "LastScalingAt", "LastConfigChangeAt", "OBSOLETEIpAddress", "Residency", "PortDefinitions", "ReadinessCheckDefinition", "Scheduler", "Secrets", "EnvVarReferences", "TaskKillGracePeriod", "UnreachableStrategy", "KillSelection", "Networks", "Tty", });
     internal_static_mesosphere_marathon_UnreachableStrategy_descriptor =
       getDescriptor().getMessageTypes().get(7);
     internal_static_mesosphere_marathon_UnreachableStrategy_fieldAccessorTable = new
@@ -49522,20 +50229,26 @@ public final class Protos {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_mesosphere_marathon_ResidencyDefinition_descriptor,
         new java.lang.String[] { "RelaunchEscalationTimeoutSeconds", "TaskLostBehavior", });
-    internal_static_mesosphere_marathon_Secret_descriptor =
+    internal_static_mesosphere_marathon_Scheduler_descriptor =
       getDescriptor().getMessageTypes().get(22);
+    internal_static_mesosphere_marathon_Scheduler_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_mesosphere_marathon_Scheduler_descriptor,
+        new java.lang.String[] { "SchedulerType", });
+    internal_static_mesosphere_marathon_Secret_descriptor =
+      getDescriptor().getMessageTypes().get(23);
     internal_static_mesosphere_marathon_Secret_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_mesosphere_marathon_Secret_descriptor,
         new java.lang.String[] { "Id", "Source", });
     internal_static_mesosphere_marathon_EnvVarReference_descriptor =
-      getDescriptor().getMessageTypes().get(23);
+      getDescriptor().getMessageTypes().get(24);
     internal_static_mesosphere_marathon_EnvVarReference_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_mesosphere_marathon_EnvVarReference_descriptor,
         new java.lang.String[] { "Type", "Name", "SecretRef", });
     internal_static_mesosphere_marathon_EnvVarSecretRef_descriptor =
-      getDescriptor().getMessageTypes().get(24);
+      getDescriptor().getMessageTypes().get(25);
     internal_static_mesosphere_marathon_EnvVarSecretRef_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_mesosphere_marathon_EnvVarSecretRef_descriptor,
