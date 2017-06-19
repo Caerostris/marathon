@@ -8,10 +8,12 @@ import akka.event.LoggingReceive
 import mesosphere.marathon.core.appinfo.TaskCounts
 import mesosphere.marathon.core.instance.Instance
 import mesosphere.marathon.core.instance.update.{ InstanceChange, InstanceDeleted, InstanceUpdateEffect, InstanceUpdateOperation, InstanceUpdated }
+import mesosphere.marathon.core.scheduling.behavior.InstanceChangeBehavior
 import mesosphere.marathon.core.task.tracker.impl.InstanceTrackerActor.ForwardTaskOp
-import mesosphere.marathon.core.task.tracker.{ InstanceTracker, InstanceTrackerUpdateStepProcessor }
+import mesosphere.marathon.core.task.tracker.InstanceTracker
 import mesosphere.marathon.metrics.AtomicGauge
 import mesosphere.marathon.state.{ PathId, Timestamp }
+import mesosphere.marathon.storage.repository.GroupRepository
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.Future
@@ -21,9 +23,10 @@ object InstanceTrackerActor {
   def props(
     metrics: ActorMetrics,
     taskLoader: InstancesLoader,
-    updateStepProcessor: InstanceTrackerUpdateStepProcessor,
+    instanceChangeBehavior: InstanceChangeBehavior,
+    groupRepository: GroupRepository,
     taskUpdaterProps: ActorRef => Props): Props = {
-    Props(new InstanceTrackerActor(metrics, taskLoader, updateStepProcessor, taskUpdaterProps))
+    Props(new InstanceTrackerActor(metrics, taskLoader, instanceChangeBehavior, groupRepository, taskUpdaterProps))
   }
 
   /** Query the current [[InstanceTracker.SpecInstances]] from the [[InstanceTrackerActor]]. */
@@ -69,7 +72,8 @@ object InstanceTrackerActor {
 private[impl] class InstanceTrackerActor(
     metrics: InstanceTrackerActor.ActorMetrics,
     taskLoader: InstancesLoader,
-    updateStepProcessor: InstanceTrackerUpdateStepProcessor,
+    instanceChangeBehavior: InstanceChangeBehavior,
+    groupRepository: GroupRepository,
     taskUpdaterProps: ActorRef => Props) extends Actor with Stash {
 
   private[this] val log = LoggerFactory.getLogger(getClass)
@@ -166,10 +170,10 @@ private[impl] class InstanceTrackerActor(
 
         import context.dispatcher
         maybeChange.map { change =>
-          updateStepProcessor.process(change).recover {
+          instanceChangeBehavior.handle(change, groupRepository).recover {
             case NonFatal(cause) =>
               // since we currently only use ContinueOnErrorSteps, we can simply ignore failures here
-              log.warn("updateStepProcessor.process failed: {}", cause)
+              log.warn("instanceChangeBehavior.handle failed: {}", cause)
               Done
           }
         }.getOrElse(Future.successful(Done)).foreach { _ =>

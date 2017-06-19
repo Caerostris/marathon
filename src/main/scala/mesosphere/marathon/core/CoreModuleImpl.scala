@@ -16,7 +16,6 @@ import mesosphere.marathon.core.flow.FlowModule
 import mesosphere.marathon.core.group.GroupManagerModule
 import mesosphere.marathon.core.health.HealthModule
 import mesosphere.marathon.core.history.HistoryModule
-import mesosphere.marathon.core.instance.update.InstanceChangeHandler
 import mesosphere.marathon.core.launcher.LauncherModule
 import mesosphere.marathon.core.launcher.impl.UnreachableReservedOfferMonitor
 import mesosphere.marathon.core.launchqueue.LaunchQueueModule
@@ -27,12 +26,14 @@ import mesosphere.marathon.core.matcher.reconcile.OfferMatcherReconciliationModu
 import mesosphere.marathon.core.plugin.PluginModule
 import mesosphere.marathon.core.pod.PodModule
 import mesosphere.marathon.core.readiness.ReadinessModule
+import mesosphere.marathon.core.scheduling.{ InstanceChangeBehaviorSteps, SchedulingModuleImpl }
 import mesosphere.marathon.core.task.bus.TaskBusModule
 import mesosphere.marathon.core.task.jobs.TaskJobsModule
 import mesosphere.marathon.core.task.termination.TaskTerminationModule
 import mesosphere.marathon.core.task.tracker.InstanceTrackerModule
 import mesosphere.marathon.core.task.update.TaskStatusUpdateProcessor
 import mesosphere.marathon.storage.StorageModule
+import mesosphere.marathon.storage.repository.GroupRepository
 
 import scala.util.Random
 
@@ -51,7 +52,7 @@ class CoreModuleImpl @Inject() (
   marathonSchedulerDriverHolder: MarathonSchedulerDriverHolder,
   clock: Clock,
   scheduler: Provider[DeploymentService],
-  instanceUpdateSteps: Seq[InstanceChangeHandler],
+  instanceChangeBehaviorSteps: InstanceChangeBehaviorSteps,
   taskStatusUpdateProcessor: TaskStatusUpdateProcessor
 )
     extends CoreModule {
@@ -74,9 +75,10 @@ class CoreModuleImpl @Inject() (
   // TASKS
 
   override lazy val taskBusModule = new TaskBusModule()
+  override lazy val schedulingModule = new SchedulingModuleImpl(instanceChangeBehaviorSteps)
   override lazy val taskTrackerModule =
     new InstanceTrackerModule(clock, marathonConf, leadershipModule,
-      storageModule.instanceRepository, instanceUpdateSteps)(actorsModule.materializer)
+      storageModule.instanceRepository, storageModule.groupRepository, schedulingModule)(actorsModule.materializer)
   override lazy val taskJobsModule = new TaskJobsModule(marathonConf, leadershipModule, clock)
   override lazy val storageModule = StorageModule(
     marathonConf,

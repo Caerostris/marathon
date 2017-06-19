@@ -4,10 +4,12 @@ package core.task.tracker
 import akka.actor.ActorRef
 import akka.stream.Materializer
 import mesosphere.marathon.core.base.Clock
-import mesosphere.marathon.core.instance.update.{ InstanceChangeHandler, InstanceUpdateOpResolver }
+import mesosphere.marathon.core.instance.update.InstanceUpdateOpResolver
 import mesosphere.marathon.core.leadership.LeadershipModule
+import mesosphere.marathon.core.scheduling.SchedulingModule
+import mesosphere.marathon.core.scheduling.behavior.InstanceChangeBehavior
 import mesosphere.marathon.core.task.tracker.impl._
-import mesosphere.marathon.storage.repository.InstanceRepository
+import mesosphere.marathon.storage.repository.{ GroupRepository, InstanceRepository }
 
 /**
   * Provides the interfaces to query the current task state ([[InstanceTracker]]) and to
@@ -18,11 +20,11 @@ class InstanceTrackerModule(
     config: InstanceTrackerConfig,
     leadershipModule: LeadershipModule,
     instanceRepository: InstanceRepository,
-    updateSteps: Seq[InstanceChangeHandler])(implicit mat: Materializer) {
+    groupRepository: GroupRepository,
+    schedulingModule: SchedulingModule)(implicit mat: Materializer) {
   lazy val instanceTracker: InstanceTracker =
     new InstanceTrackerDelegate(config, instanceTrackerActorRef)
-  lazy val instanceTrackerUpdateStepProcessor: InstanceTrackerUpdateStepProcessor =
-    new InstanceTrackerUpdateStepProcessorImpl(updateSteps)
+  lazy val instanceChangeBehavior: InstanceChangeBehavior = schedulingModule.instanceChangeBehavior
 
   def instanceCreationHandler: InstanceCreationHandler = instanceStateOpProcessor
   def stateOpProcessor: TaskStateOpProcessor = instanceStateOpProcessor
@@ -38,7 +40,7 @@ class InstanceTrackerModule(
   private[this] lazy val instancesLoader = new InstancesLoaderImpl(instanceRepository)
   private[this] lazy val instanceTrackerMetrics = new InstanceTrackerActor.ActorMetrics()
   private[this] lazy val instanceTrackerActorProps = InstanceTrackerActor.props(
-    instanceTrackerMetrics, instancesLoader, instanceTrackerUpdateStepProcessor, instanceUpdaterActorProps)
+    instanceTrackerMetrics, instancesLoader, instanceChangeBehavior, groupRepository, instanceUpdaterActorProps)
   protected lazy val instanceTrackerActorName = "instanceTracker"
   private[this] lazy val instanceTrackerActorRef = leadershipModule.startWhenLeader(
     instanceTrackerActorProps, instanceTrackerActorName
