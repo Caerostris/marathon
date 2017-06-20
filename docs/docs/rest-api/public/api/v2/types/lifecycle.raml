@@ -1,0 +1,80 @@
+#%RAML 1.0 Library
+uses:
+  strings: stringTypes.raml
+
+types:
+  CancelationPolicy:
+    type: object
+    description: |
+      Defines if and when a scheduled attempt is canceled, or Marathon should give up to schedule any further instances.
+    properties:
+      stopTryingAfterNumFailures:
+        type: integer
+        format: int32
+        description: |
+          Stop scheduling more instances for an attempt when this many instances terminated abnormally. If set to 0, the attempt will never stop trying. If the attempt should be canceled after one failure, set this to 1.
+        minimum: 0
+        default: 10
+      stopTryingAfterSeconds:
+        type: number
+        description: |
+          Stop scheduling more instances for an attempt after this amount of seconds after starting the attempt. If set to 0, the attempt will never be canceled.
+        minimum: 0
+        default: 3600
+      maxDurationPerInstanceSeconds:
+        type: number
+        description: |
+          Kill a scheduled instance after this amount of seconds if it didn't finish until then. If set to 0, an instance will not be killed.
+        minimum: 0
+        default: 0
+  SchedulingStrategyType:
+    type: string
+    enum: [ continuous, manual, periodic ]
+  SchedulingStrategy:
+    discriminator: kind
+    description: |
+      Supertype for scheduling strategies. Possible strategies are ContinuousSchedulingStrategy, ManualSchedulingStrategy and PeriodicSchedulingStrategy.
+    properties:
+      kind: SchedulingStrategyType
+      affectsDeployment:
+        type: boolean
+  ContinuousSchedulingStrategy:
+    type: SchedulingStrategy
+    discriminatorValue: continuous
+    description: |
+      This strategy will schedule a designated amount of instances with the goal of keeping this amount up and running. Whenever instances terminate, this will schedule a replacement instance. Continuous schedules are configured with an upgradeStrategy that controls how upgrading in case of config changes or restarts are handled.
+    properties:
+      kind: SchedulingStrategyType
+      affectsDeployment:
+        type: boolean
+        default: true
+  ManualSchedulingStrategy:
+    type: SchedulingStrategy
+    discriminatorValue: manual
+    description: |
+      This strategy will only schedule instances upon user interaction. The goal for each attempt is to see the launched instance finish successfully. If it terminates otherwise, a new instance will eventually be scheduled, as long as the config allows.
+    properties:
+      kind: SchedulingStrategyType
+      cancelationPolicy: CancelationPolicy
+      affectsDeployment:
+        type: boolean
+        default: false
+  PeriodicSchedulingStrategy:
+    type: SchedulingStrategy
+    discriminatorValue: periodic
+    description: |
+      This strategy will only schedule instances upon user interaction. The goal for each attempt is to see the launched instance finish successfully. If it terminates otherwise, a new instance will eventually be scheduled, as long as the config allows.
+    properties:
+      kind: SchedulingStrategyType
+      cancelationPolicy: CancelationPolicy
+      affectsDeployment:
+        type: boolean
+        default: false
+  Schedule:
+    type: object
+    properties:
+      strategy: SchedulingStrategy
+  LifecycleSpec:
+    type: object
+    properties:
+      schedule: Schedule

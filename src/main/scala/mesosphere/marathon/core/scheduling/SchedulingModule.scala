@@ -3,9 +3,8 @@ package core.scheduling
 
 import com.google.inject.Inject
 import mesosphere.marathon.core.scheduling.behavior.InstanceChangeBehavior
-import mesosphere.marathon.core.scheduling.behavior.impl.{ StepsProcessor, InstanceChangeBehaviorImpl }
+import mesosphere.marathon.core.scheduling.behavior.impl.{ InstanceChangeBehaviorImpl, StepsProcessor }
 import mesosphere.marathon.core.task.update.impl.steps._
-import mesosphere.marathon.storage.repository.GroupRepository
 
 /**
   * Defines the behaviors to apply upon instance state changes.
@@ -33,7 +32,13 @@ private[core] class SchedulingModuleImpl(instanceChangeBehaviorSteps: InstanceCh
     }
 
     val manualBehavior = {
-      val manualSteps = Seq()
+      val manualSteps = Seq(
+        instanceChangeBehaviorSteps.notifyHealthCheckManagerStepImpl,
+        instanceChangeBehaviorSteps.notifyRateLimiterStepImpl,
+        instanceChangeBehaviorSteps.notifyLaunchQueueStepImpl,
+        instanceChangeBehaviorSteps.taskStatusEmitterPublishImpl,
+        instanceChangeBehaviorSteps.postToEventStreamStepImpl
+      )
       new StepsProcessor(manualSteps)
     }
 

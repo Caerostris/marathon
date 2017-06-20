@@ -3,7 +3,7 @@ package state
 
 import mesosphere.marathon.Protos.Constraint
 import mesosphere.marathon.core.pod.Network
-import mesosphere.marathon.raml.Resources
+import mesosphere.marathon.raml.{ LifecycleSpec, Resources }
 
 import scala.concurrent.duration._
 
@@ -61,4 +61,5 @@ trait RunSpec extends plugin.RunSpec {
   val unreachableStrategy: UnreachableStrategy
   val killSelection: KillSelection
   val networks: Seq[Network]
+  val lifecycle: LifecycleSpec
 }

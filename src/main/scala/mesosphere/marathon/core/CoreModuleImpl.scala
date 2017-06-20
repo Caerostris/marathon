@@ -33,7 +33,6 @@ import mesosphere.marathon.core.task.termination.TaskTerminationModule
 import mesosphere.marathon.core.task.tracker.InstanceTrackerModule
 import mesosphere.marathon.core.task.update.TaskStatusUpdateProcessor
 import mesosphere.marathon.storage.StorageModule
-import mesosphere.marathon.storage.repository.GroupRepository
 
 import scala.util.Random
 

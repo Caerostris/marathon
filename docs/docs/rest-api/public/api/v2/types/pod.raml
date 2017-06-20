@@ -4,6 +4,7 @@ uses:
   container: podContainer.raml
   env: environmentVariable.raml
   label: label.raml
+  lifecycle: lifecycle.raml
   net: network.raml
   pragma: pragma.raml
   resources: resources.raml
@@ -158,6 +159,7 @@ types:
         description: |
           Network settings are defined on a pod level. All containers share the same network stack.
           At this time, only one stack is supported.
+      lifecycle?: lifecycle.LifecycleSpec
       scaling?: PodScalingPolicy
       scheduling?: PodSchedulingPolicy
       executorResources?:

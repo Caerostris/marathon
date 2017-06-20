@@ -9,10 +9,10 @@ uses:
   env: environmentVariable.raml
   health: healthCheck.raml
   label: label.raml
+  lifecycle: lifecycle.raml
   network: network.raml
   number: numberTypes.raml
   readiness: readinessCheck.raml
-  scheduler: scheduler.raml
   secrets: secrets.raml
   strings: stringTypes.raml
   versionInfo: versionInfo.raml
@@ -277,8 +277,8 @@ types:
           are used as host ports. That also means that Marathon can schedule the
           associated tasks only on hosts that have the specified ports available.
         default: false
-      scheduler?:
-        type: scheduler.Scheduler
+      lifecycle?:
+        type: lifecycle.LifecycleSpec
         description: |
           Describes when this app should be run.
       secrets?:

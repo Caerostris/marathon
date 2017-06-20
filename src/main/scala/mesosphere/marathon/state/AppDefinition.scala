@@ -13,8 +13,9 @@ import mesosphere.marathon.core.health._
 import mesosphere.marathon.core.plugin.PluginManager
 import mesosphere.marathon.core.pod.{ HostNetwork, Network }
 import mesosphere.marathon.core.readiness.ReadinessCheck
+import mesosphere.marathon.lifecycle.Lifecycle
 import mesosphere.marathon.plugin.validation.RunSpecValidator
-import mesosphere.marathon.raml.{ App, Apps, Resources, TTY }
+import mesosphere.marathon.raml.{ App, Apps, LifecycleSpec, Resources, TTY }
 import mesosphere.marathon.state.Container.{ Docker, MesosAppC, MesosDocker }
 import mesosphere.marathon.state.VersionInfo._
 import mesosphere.marathon.stream.Implicits._
@@ -74,15 +75,15 @@ case class AppDefinition(
 
   override val residency: Option[Residency] = AppDefinition.DefaultResidency,
 
-  scheduler: Scheduler = AppDefinition.DefaultScheduler,
-
   secrets: Map[String, Secret] = AppDefinition.DefaultSecrets,
 
   override val unreachableStrategy: UnreachableStrategy = AppDefinition.DefaultUnreachableStrategy,
 
   override val killSelection: KillSelection = KillSelection.DefaultKillSelection,
 
-  tty: Option[TTY] = AppDefinition.DefaultTTY) extends RunSpec
+  tty: Option[TTY] = AppDefinition.DefaultTTY,
+
+  lifecycle: LifecycleSpec = Lifecycle.DefaultLifecycle) extends RunSpec
     with plugin.ApplicationSpec with MarathonState[Protos.ServiceDefinition, AppDefinition] {
 
   import mesosphere.mesos.protos.Implicits._
@@ -162,7 +163,6 @@ case class AppDefinition(
       .setUpgradeStrategy(upgradeStrategy.toProto)
       .addAllDependencies(dependencies.map(_.toString))
       .addAllLabels(appLabels)
-      .setScheduler(scheduler.toProto)
       .addAllSecrets(secrets.map(SecretsSerializer.toProto))
       .addAllEnvVarReferences(env.flatMap(EnvVarRefSerializer.toProto))
       .setUnreachableStrategy(unreachableStrategy.toProto)
@@ -278,7 +278,6 @@ case class AppDefinition(
       dependencies = proto.getDependenciesList.map(PathId(_))(collection.breakOut),
       networks = if (networks.isEmpty) AppDefinition.DefaultNetworks else networks,
       residency = residencyOption,
-      scheduler = Scheduler.fromProto(proto.getScheduler),
       secrets = proto.getSecretsList.map(SecretsSerializer.fromProto)(collection.breakOut),
       unreachableStrategy = unreachableStrategy,
       killSelection = KillSelection.fromProto(proto.getKillSelection),
@@ -399,8 +398,6 @@ object AppDefinition extends GeneralPurposeCombinators {
   val DefaultDependencies = Set.empty[PathId]
 
   val DefaultUpgradeStrategy: UpgradeStrategy = UpgradeStrategy.empty
-
-  val DefaultScheduler = Scheduler.default
 
   val DefaultSecrets = Map.empty[String, Secret]
 

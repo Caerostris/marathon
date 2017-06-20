@@ -42,6 +42,8 @@ trait PodConversion extends NetworkConversion with ConstraintConversion with Con
 
     val executorResources: ExecutorResources = podDef.executorResources.getOrElse(PodDefinition.DefaultExecutorResources.toRaml)
 
+    val lf: LifecycleSpec = lifecycle.Lifecycle.DefaultLifecycle
+
     new PodDefinition(
       id = PathId(podDef.id).canonicalPath(),
       user = podDef.user,
@@ -59,7 +61,8 @@ trait PodConversion extends NetworkConversion with ConstraintConversion with Con
       upgradeStrategy = upgradeStrategy,
       executorResources = executorResources.fromRaml,
       unreachableStrategy = unreachableStrategy,
-      killSelection = killSelection
+      killSelection = killSelection,
+      lifecycle = lf
     )
   }
 
@@ -97,7 +100,8 @@ trait PodConversion extends NetworkConversion with ConstraintConversion with Con
       scheduling = Some(schedulingPolicy),
       volumes = pod.podVolumes.map(Raml.toRaml(_)),
       networks = pod.networks.map(Raml.toRaml(_)),
-      executorResources = Some(pod.executorResources.toRaml)
+      executorResources = Some(pod.executorResources.toRaml),
+      lifecycle = Some(pod.lifecycle)
     )
   }
 

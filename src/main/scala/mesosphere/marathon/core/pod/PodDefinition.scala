@@ -4,7 +4,8 @@ package core.pod
 // scalastyle:off
 import mesosphere.marathon.api.v2.PodNormalization
 import mesosphere.marathon.core.task.Task
-import mesosphere.marathon.raml.{ Endpoint, ExecutorResources, Pod, Raml, Resources }
+import mesosphere.marathon.lifecycle.Lifecycle
+import mesosphere.marathon.raml.{ Endpoint, ExecutorResources, LifecycleSpec, Pod, Raml, Resources }
 import mesosphere.marathon.state._
 import play.api.libs.json.Json
 
@@ -31,7 +32,8 @@ case class PodDefinition(
     upgradeStrategy: UpgradeStrategy = PodDefinition.DefaultUpgradeStrategy,
     executorResources: Resources = PodDefinition.DefaultExecutorResources,
     override val unreachableStrategy: UnreachableStrategy = PodDefinition.DefaultUnreachableStrategy,
-    override val killSelection: KillSelection = KillSelection.DefaultKillSelection
+    override val killSelection: KillSelection = KillSelection.DefaultKillSelection,
+    lifecycle: LifecycleSpec = Lifecycle.DefaultLifecycle
 ) extends RunSpec with plugin.PodSpec with MarathonState[Protos.Json, PodDefinition] {
 
   val endpoints: Seq[Endpoint] = containers.flatMap(_.endpoints)
