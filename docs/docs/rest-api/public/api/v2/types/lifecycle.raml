@@ -3,6 +3,12 @@ uses:
   strings: stringTypes.raml
 
 types:
+  LifecycleSpec:
+    type: object
+    discriminator: kind
+    properties:
+      kind: string
+      cancelationPolicy: CancelationPolicy
   CancelationPolicy:
     type: object
     description: |
@@ -27,54 +33,19 @@ types:
           Kill a scheduled instance after this amount of seconds if it didn't finish until then. If set to 0, an instance will not be killed.
         minimum: 0
         default: 0
-  SchedulingStrategyType:
-    type: string
-    enum: [ continuous, manual, periodic ]
-  SchedulingStrategy:
-    discriminator: kind
-    description: |
-      Supertype for scheduling strategies. Possible strategies are ContinuousSchedulingStrategy, ManualSchedulingStrategy and PeriodicSchedulingStrategy.
-    properties:
-      kind: SchedulingStrategyType
-      affectsDeployment:
-        type: boolean
-  ContinuousSchedulingStrategy:
-    type: SchedulingStrategy
-    discriminatorValue: continuous
+  ContinuousSchedule:
+    type: LifecycleSpec
     description: |
       This strategy will schedule a designated amount of instances with the goal of keeping this amount up and running. Whenever instances terminate, this will schedule a replacement instance. Continuous schedules are configured with an upgradeStrategy that controls how upgrading in case of config changes or restarts are handled.
-    properties:
-      kind: SchedulingStrategyType
-      affectsDeployment:
-        type: boolean
-        default: true
-  ManualSchedulingStrategy:
-    type: SchedulingStrategy
-    discriminatorValue: manual
+  ManualSchedule:
+    type: LifecycleSpec
+    description: |
+      This strategy will only schedule instances upon user interaction. The goal for each attempt is to see the launched instance finish successfully. If it terminates otherwise, a new instance will eventually be scheduled, as long as the config allows.
+  PeriodicSchedule:
+    type: LifecycleSpec
     description: |
       This strategy will only schedule instances upon user interaction. The goal for each attempt is to see the launched instance finish successfully. If it terminates otherwise, a new instance will eventually be scheduled, as long as the config allows.
     properties:
-      kind: SchedulingStrategyType
-      cancelationPolicy: CancelationPolicy
       affectsDeployment:
         type: boolean
         default: false
-  PeriodicSchedulingStrategy:
-    type: SchedulingStrategy
-    discriminatorValue: periodic
-    description: |
-      This strategy will only schedule instances upon user interaction. The goal for each attempt is to see the launched instance finish successfully. If it terminates otherwise, a new instance will eventually be scheduled, as long as the config allows.
-    properties:
-      kind: SchedulingStrategyType
-      cancelationPolicy: CancelationPolicy
-      affectsDeployment:
-        type: boolean
-        default: false
-  Schedule:
-    type: object
-    properties:
-      strategy: SchedulingStrategy
-  LifecycleSpec:
-    type: object
-    properties:
-      schedule: Schedule

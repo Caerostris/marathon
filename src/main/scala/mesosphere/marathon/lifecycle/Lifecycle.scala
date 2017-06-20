@@ -5,9 +5,5 @@ object Lifecycle {
   /**
     * The default lifecycle to be used for migrating old RunSpecs.
     */
-  val DefaultLifecycle = raml.LifecycleSpec(
-    schedule = raml.Schedule(
-      strategy = raml.ContinuousSchedulingStrategy(affectsDeployment = true)
-    )
-  )
+  val DefaultLifecycle = raml.ContinuousSchedule(CancellationPolicy.DefaultCancellationPolicy)
 }

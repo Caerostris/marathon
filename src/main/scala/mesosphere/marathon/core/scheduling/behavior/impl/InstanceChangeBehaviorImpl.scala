@@ -3,7 +3,7 @@ package core.scheduling.behavior
 package impl
 import akka.Done
 import mesosphere.marathon.core.instance.update.InstanceChange
-import mesosphere.marathon.raml.{ ContinuousSchedulingStrategy, ManualSchedulingStrategy }
+import mesosphere.marathon.raml.{ ContinuousSchedule, ManualSchedule }
 import mesosphere.marathon.state.RunSpec
 import mesosphere.marathon.storage.repository.GroupRepository
 import org.slf4j.LoggerFactory
@@ -34,9 +34,9 @@ final class InstanceChangeBehaviorImpl(continuousBehavior: InstanceChangeBehavio
   }
 
   def getHandlerForRunSpec(runSpec: RunSpec) = {
-    runSpec.lifecycle.schedule.strategy match {
-      case _: ContinuousSchedulingStrategy => continuousBehavior
-      case _: ManualSchedulingStrategy => manualBehavior
+    runSpec.lifecycle match {
+      case _: ContinuousSchedule => continuousBehavior
+      case _: ManualSchedule => manualBehavior
       case _ => continuousBehavior
     }
   }
