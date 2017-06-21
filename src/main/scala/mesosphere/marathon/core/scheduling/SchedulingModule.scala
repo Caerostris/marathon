@@ -37,7 +37,8 @@ private[core] class SchedulingModuleImpl(instanceChangeBehaviorSteps: InstanceCh
         instanceChangeBehaviorSteps.notifyRateLimiterStepImpl,
         instanceChangeBehaviorSteps.notifyLaunchQueueStepImpl,
         instanceChangeBehaviorSteps.taskStatusEmitterPublishImpl,
-        instanceChangeBehaviorSteps.postToEventStreamStepImpl
+        instanceChangeBehaviorSteps.postToEventStreamStepImpl,
+        instanceChangeBehaviorSteps.restartJobStepImpl
       )
       new StepsProcessor(manualSteps)
     }
@@ -55,5 +56,6 @@ private[core] class InstanceChangeBehaviorSteps @Inject() (
   val notifyLaunchQueueStepImpl: NotifyLaunchQueueStepImpl,
   val taskStatusEmitterPublishImpl: TaskStatusEmitterPublishStepImpl,
   val postToEventStreamStepImpl: PostToEventStreamStepImpl,
-  val scaleAppUpdateStepImpl: ScaleAppUpdateStepImpl
+  val scaleAppUpdateStepImpl: ScaleAppUpdateStepImpl,
+  val restartJobStepImpl: RestartJobStepImpl
 )
