@@ -126,7 +126,6 @@ message ServiceDefinition {
   optional ResidencyDefinition residency = 26;
   repeated mesos.Port portDefinitions = 27;
   repeated ReadinessCheckDefinition readinessCheckDefinition = 28;
-  optional Scheduler scheduler = 36;
   repeated Secret secrets = 29;
   repeated EnvVarReference envVarReferences = 30;
   optional int64 taskKillGracePeriod = 31; // stored as Millis
@@ -134,6 +133,31 @@ message ServiceDefinition {
   optional KillSelection killSelection = 33 [ default = YoungestFirst ];
   repeated NetworkDefinition networks = 34; // supersedes ObsoleteIpAddress
   optional mesos.TTYInfo tty = 35;
+  required LifecycleSpec lifecycle = 36;
+}
+
+message LifecycleSpec {
+  required CancellationPolicy cancellationPolicy = 1;
+  oneof scheduler {
+    ContinuousScheduler continuous = 2;
+    ManualScheduler manual = 3;
+    PeriodicScheduler periodic = 4;
+  }
+}
+
+message CancellationPolicy {
+  required uint32 stopTryingAfterNumFailures = 1;
+  required uint32 stopTryingAfterSeconds = 2;
+  required uint32 maxDurationPerInstanceSeconds = 3;
+}
+
+message ContinuousScheduler {
+}
+
+message ManualScheduler {
+}
+
+message PeriodicScheduler {
 }
 
 enum KillSelection {

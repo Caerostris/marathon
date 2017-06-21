@@ -167,6 +167,7 @@ case class AppDefinition(
       .addAllEnvVarReferences(env.flatMap(EnvVarRefSerializer.toProto))
       .setUnreachableStrategy(unreachableStrategy.toProto)
       .setKillSelection(killSelection.toProto)
+      .setLifecycle(Lifecycle.toProto(lifecycle))
 
     tty.foreach(builder.setTty(_))
     networks.foreach { network => builder.addNetworks(Network.toProto(network)) }
@@ -281,7 +282,8 @@ case class AppDefinition(
       secrets = proto.getSecretsList.map(SecretsSerializer.fromProto)(collection.breakOut),
       unreachableStrategy = unreachableStrategy,
       killSelection = KillSelection.fromProto(proto.getKillSelection),
-      tty = tty
+      tty = tty,
+      lifecycle = if (proto.hasLifecycle) Lifecycle.fromProto(proto.getLifecycle) else Lifecycle.DefaultLifecycle
     )
   }
 
