@@ -7,11 +7,12 @@ object Lifecycle {
   /**
     * The default lifecycle to be used for migrating old RunSpecs.
     */
-  val DefaultLifecycle = raml.ContinuousSchedule(CancellationPolicy.DefaultCancellationPolicy)
+  val DefaultLifecycle = raml.ContinuousSchedule(CancellationPolicy.DefaultCancellationPolicy, affectsDeployment = true)
 
   def toProto(lifecycle: raml.LifecycleSpec): Protos.LifecycleSpec = {
     var builder = Protos.LifecycleSpec.newBuilder
       .setCancellationPolicy(CancellationPolicy.toProto(lifecycle.cancellationPolicy))
+      .setAffectsDeployment(lifecycle.affectsDeployment)
 
     builder = lifecycle match {
       case _: ContinuousSchedule => builder.setContinuous(Protos.ContinuousScheduler.newBuilder().build())
@@ -29,14 +30,14 @@ object Lifecycle {
       CancellationPolicy.DefaultCancellationPolicy
     }
 
-    if (lifecycle.hasContinuous) {
-      ContinuousSchedule(cancellationPolicy)
-    } else if (lifecycle.hasManual) {
-      ManualSchedule(cancellationPolicy)
+    val affectsDeployment = if (lifecycle.hasAffectsDeployment) lifecycle.getAffectsDeployment else true
+
+    if (lifecycle.hasManual) {
+      ManualSchedule(cancellationPolicy, affectsDeployment)
     } else if (lifecycle.hasPeriodic) {
-      PeriodicSchedule(cancellationPolicy)
+      PeriodicSchedule(cancellationPolicy, affectsDeployment)
     } else {
-      ContinuousSchedule(cancellationPolicy)
+      ContinuousSchedule(cancellationPolicy, affectsDeployment)
     }
   }
 }

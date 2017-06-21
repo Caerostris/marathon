@@ -9,6 +9,7 @@ types:
     properties:
       schedule: string
       cancellationPolicy: CancellationPolicy
+      affectsDeployment: boolean
   CancellationPolicy:
     type: object
     description: |
@@ -47,7 +48,3 @@ types:
     type: LifecycleSpec
     description: |
       This strategy will only schedule instances upon user interaction. The goal for each attempt is to see the launched instance finish successfully. If it terminates otherwise, a new instance will eventually be scheduled, as long as the config allows.
-    properties:
-      affectsDeployment:
-        type: boolean
-        default: false

@@ -143,6 +143,7 @@ message LifecycleSpec {
     ManualScheduler manual = 3;
     PeriodicScheduler periodic = 4;
   }
+  required bool affectsDeployment = 5;
 }
 
 message CancellationPolicy {

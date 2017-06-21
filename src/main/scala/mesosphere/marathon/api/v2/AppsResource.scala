@@ -92,36 +92,32 @@ class AppsResource @Inject() (
         .map(_ => throw ConflictingChangeException(s"An app with id [${app.id}] already exists."))
         .getOrElse(app)
 
-      /*    if (app.scheduler.schedulerType == SchedulerType.Manual) {
-        launchQueue.add(app)
+      val maybeDeployment = if (app.lifecycle.affectsDeployment) {
+        val plan = result(groupManager.updateApp(app.id, createOrThrow, app.version, force))
+        Some(plan)
+      } else {
+        // update repository with new app definition
+        result(groupManager.updateAppWithoutDeployment(app.id, createOrThrow, app.version, Seq(app)))
+        // launch if lifecycle.startImmediately is set
+        None
+      }
 
-        val appWithDeployments = AppInfo(
-          app,
-          maybeCounts = Some(TaskCounts.zero),
-          maybeTasks = Some(Seq.empty),
-          maybeDeployments = None
-        )
-
-        Response
-          .created(new URI(app.id.toString))
-          .entity(jsonString(appWithDeployments))
-          .build()
-      } else { */
-      val plan = result(groupManager.updateApp(app.id, createOrThrow, app.version, force))
       val appWithDeployments = AppInfo(
         app,
         maybeCounts = Some(TaskCounts.zero),
         maybeTasks = Some(Seq.empty),
-        maybeDeployments = Some(Seq(Identifiable(plan.id)))
+        maybeDeployments = maybeDeployment.map(plan => Seq(Identifiable(plan.id)))
       )
 
       maybePostEvent(req, appWithDeployments.app)
-      Response
+      val responseBuilder = Response
         .created(new URI(app.id.toString))
-        .header(RestResource.DeploymentHeader, plan.id)
         .entity(jsonString(appWithDeployments))
-        .build()
-      //  }
+
+      maybeDeployment match {
+        case Some(plan) => responseBuilder.header(RestResource.DeploymentHeader, plan.id).build()
+        case _ => responseBuilder.build()
+      }
     }
   }
 

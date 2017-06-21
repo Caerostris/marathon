@@ -131,6 +131,20 @@ trait GroupManager {
     toKill: Seq[Instance] = Seq.empty): Future[DeploymentPlan] =
     updateRoot(appId.parent, _.updateApp(appId, fn, version), version, force, Map(appId -> toKill))
 
+  def updateAppWithoutDeployment(
+    appId: PathId,
+    fn: Option[AppDefinition] => AppDefinition,
+    version: Timestamp = Timestamp.now(),
+    newApps: Seq[AppDefinition]): Future[Done] =
+    updateRootWithoutDeployment(appId.parent, _.updateApp(appId, fn, version), version, newApps)
+
+  def updateRootWithoutDeployment(
+    id: PathId,
+    change: (RootGroup) => RootGroup,
+    version: Timestamp,
+    newApps: Seq[AppDefinition]
+  ): Future[Done]
+
   /**
     * Update pod with given identifier and update function.
     * The change could take time to get deployed.

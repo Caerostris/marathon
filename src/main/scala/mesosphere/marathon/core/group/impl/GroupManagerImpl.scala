@@ -123,6 +123,23 @@ class GroupManagerImpl(
     deployment
   }
 
+  def updateRootWithoutDeployment(
+    id: PathId,
+    change: (RootGroup) => RootGroup,
+    version: Timestamp,
+    newApps: Seq[AppDefinition]
+  ): Future[Done] = async {
+    val from = rootGroup()
+    val unversioned = assignDynamicServicePorts(from, change(from))
+    val to = GroupVersioningUtil.updateVersionInfoForChangedApps(version, from, unversioned)
+    Validation.validateOrThrow(to)(RootGroup.rootGroupValidator(config.availableFeatures))
+    logger.info("Adding new app definition to root group")
+    await(groupRepository.storeRootVersion(to, newApps, Seq()))
+    await(groupRepository.storeRoot(to, newApps, Seq(), Seq(), Seq()))
+    root := to
+    Done
+  }
+
   private[group] def assignDynamicServicePorts(from: RootGroup, to: RootGroup): RootGroup = {
     val portRange = Range(config.localPortMin(), config.localPortMax())
     var taken = from.transitiveApps.flatMap(_.servicePorts) ++ to.transitiveApps.flatMap(_.servicePorts)
