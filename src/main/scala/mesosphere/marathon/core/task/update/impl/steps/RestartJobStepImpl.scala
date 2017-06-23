@@ -6,9 +6,10 @@ import javax.inject.Named
 import akka.Done
 import akka.actor.ActorRef
 import com.google.inject.{ Inject, Provider }
-import mesosphere.marathon.MarathonSchedulerActor.ScaleRunSpec
+import mesosphere.marathon.MarathonSchedulerActor.StartInstances
 import mesosphere.marathon.core.condition.Condition
 import mesosphere.marathon.core.instance.update.{ InstanceChange, InstanceChangeHandler }
+import mesosphere.marathon.core.launchqueue.LaunchQueue
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.Future
@@ -17,30 +18,27 @@ import scala.concurrent.Future
   * Trigger rescale of affected app if a task died or a reserved task timed out.
   */
 class RestartJobStepImpl @Inject() (
+    launchQueueProvider: Provider[LaunchQueue],
     @Named("schedulerActor") schedulerActorProvider: Provider[ActorRef]) extends InstanceChangeHandler {
 
   private[this] val log = LoggerFactory.getLogger(getClass)
   private[this] lazy val schedulerActor = schedulerActorProvider.get()
 
-  private[this] def failure: Condition => Boolean = {
-    case Condition.Failed | Condition.UnreachableInactive | _: Condition.Terminal => true
-    case _ => false
-  }
+  private[this] lazy val launchQueue = launchQueueProvider.get()
 
-  override def name: String = "scaleApp"
+  override def name: String = "restartJob"
 
   override def process(update: InstanceChange): Future[Done] = continueOnError(name, update) { update =>
-    // TODO(PODS): it should be up to a tbd TaskUnreachableBehavior how to handle Unreachable
-    calcScaleEvent(update).foreach(event => schedulerActor ! event)
+    calcRestartEvent(update).foreach(event => schedulerActor ! event)
     Future.successful(Done)
   }
 
-  def calcScaleEvent(change: InstanceChange): Option[ScaleRunSpec] = {
+  def calcRestartEvent(change: InstanceChange): Option[StartInstances] = {
     change.condition match {
-      case _: Condition.Failure =>
+      case _: Condition.Failure if change.instance.remainingRestarts.forall(_ > 0) =>
         val runSpecId = change.runSpecId
-        log.warn(s"initiating a scale check for runSpec [$runSpecId] due to failure")
-        Some(ScaleRunSpec(runSpecId))
+        log.warn(s"Initiating a restart for run spec [$runSpecId] due to failure")
+        Some(StartInstances(runSpecId, change.runSpecVersion, numInstances = 1))
       case _ => None
     }
   }

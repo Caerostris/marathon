@@ -17,7 +17,7 @@ import mesosphere.marathon.core.launchqueue.LaunchQueue
 import mesosphere.marathon.core.task.Task
 import mesosphere.marathon.core.task.termination.{ KillReason, KillService }
 import mesosphere.marathon.core.task.tracker.InstanceTracker
-import mesosphere.marathon.state.{ PathId, RunSpec }
+import mesosphere.marathon.state.{ PathId, RunSpec, Timestamp }
 import mesosphere.marathon.storage.repository.{ DeploymentRepository, GroupRepository }
 import mesosphere.marathon.stream.Implicits._
 import mesosphere.mesos.Constraints
@@ -159,6 +159,9 @@ class MarathonSchedulerActor private (
           logger.debug(s"Did not try to scale run spec ${runSpecId}; it is locked")
         case _ =>
       }
+
+    case cmd @ StartInstances(runSpecId, version, numInstances) =>
+      schedulerActions.startInstances(runSpecId, version, numInstances)
 
     case cmd @ CancelDeployment(plan) =>
       deploymentManager.cancel(plan).onComplete{
@@ -342,6 +345,10 @@ object MarathonSchedulerActor {
     def answer: Event = RunSpecScaled(runSpecId)
   }
 
+  case class StartInstances(runSpecId: PathId, version: Timestamp, numInstances: Int) extends Command {
+    def answer: Event = InstancesStarted(runSpecId, version, numInstances)
+  }
+
   case class Deploy(plan: DeploymentPlan, force: Boolean = false) extends Command {
     def answer: Event = DeploymentStarted(plan)
   }
@@ -356,6 +363,7 @@ object MarathonSchedulerActor {
 
   sealed trait Event
   case class RunSpecScaled(runSpecId: PathId) extends Event
+  case class InstancesStarted(runSpecId: PathId, version: Timestamp, numInstances: Int) extends Event
   case object TasksReconciled extends Event
   case class DeploymentStarted(plan: DeploymentPlan) extends Event
   case class DeploymentFailed(plan: DeploymentPlan, reason: Throwable) extends Event
@@ -515,6 +523,22 @@ class SchedulerActions(
         logger.warn(s"RunSpec $runSpecId does not exist. Not scaling.")
         Done
     }
+  }
+
+  def startInstances(runSpecId: PathId, runSpecVersion: Timestamp, numInstances: Int): Future[Done] = async {
+    val runSpec = await(runSpecById(runSpecId))
+    runSpec match {
+      case Some(runSpec) => await(startInstances(runSpec, numInstances))
+      case _ =>
+        logger.warn(s"RunSpec $runSpecId does not exist. Not starting.")
+        Done
+    }
+  }
+
+  def startInstances(runSpec: RunSpec, numInstances: Int): Future[Done] = async {
+    logger.info(s"Starting ${runSpec.id}")
+    launchQueue.add(runSpec, numInstances)
+    Done
   }
 
   def runSpecById(id: PathId): Future[Option[RunSpec]] = {

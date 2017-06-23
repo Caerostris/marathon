@@ -2,12 +2,15 @@ package mesosphere.marathon
 package api.v2
 
 import java.net.URI
-import javax.inject.Inject
+import javax.inject.{ Inject, Named }
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs._
 import javax.ws.rs.core.{ Context, MediaType, Response }
 
+import akka.actor.ActorRef
 import akka.event.EventStream
+import com.google.inject.Provider
+import mesosphere.marathon.MarathonSchedulerActor.StartInstances
 import mesosphere.marathon.api.v2.Validation._
 import mesosphere.marathon.api.v2.json.Formats._
 import mesosphere.marathon.api.v2.validation.AppValidation
@@ -39,7 +42,8 @@ class AppsResource @Inject() (
     groupManager: GroupManager,
     groupRepository: GroupRepository,
     launchQueue: LaunchQueue,
-    pluginManager: PluginManager)(implicit
+    pluginManager: PluginManager,
+    @Named("schedulerActor") schedulerActorProvider: Provider[ActorRef])(implicit
   val authenticator: Authenticator,
     val authorizer: Authorizer) extends RestResource with AuthResource {
 
@@ -49,6 +53,8 @@ class AppsResource @Inject() (
   private[this] val ListApps = """^((?:.+/)|)\*$""".r
   private implicit lazy val appDefinitionValidator = AppDefinition.validAppDefinition(config.availableFeatures)(pluginManager)
   private implicit lazy val validateCanonicalAppUpdateAPI = AppValidation.validateCanonicalAppUpdateAPI(config.availableFeatures)
+
+  private[this] lazy val schedulerActor = schedulerActorProvider.get()
 
   private val normalizationConfig = AppNormalization.Configuration(
     config.defaultNetworkName.get,
@@ -98,7 +104,7 @@ class AppsResource @Inject() (
       } else {
         // update repository with new app definition
         result(groupManager.updateAppWithoutDeployment(app.id, createOrThrow, app.version, Seq(app)))
-        // launch if lifecycle.startImmediately is set
+        schedulerActor ! StartInstances(app.id, app.version, numInstances = 1)
         None
       }
 

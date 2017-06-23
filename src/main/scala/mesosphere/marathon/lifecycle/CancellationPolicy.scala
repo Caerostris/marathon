@@ -8,17 +8,17 @@ object CancellationPolicy {
   val DefaultCancellationPolicy = raml.CancellationPolicy()
 
   def toProto(cancellationPolicy: raml.CancellationPolicy): Protos.CancellationPolicy = {
-    Protos.CancellationPolicy.newBuilder
+    val protos = Protos.CancellationPolicy.newBuilder
       .setMaxDurationPerInstanceSeconds(cancellationPolicy.maxDurationPerInstanceSeconds)
-      .setStopTryingAfterNumFailures(cancellationPolicy.stopTryingAfterNumFailures)
       .setStopTryingAfterSeconds(cancellationPolicy.stopTryingAfterSeconds)
-      .build()
+
+    cancellationPolicy.stopTryingAfterNumFailures.map(protos.setStopTryingAfterNumFailures).getOrElse(protos).build()
   }
 
   def fromProto(cancellationPolicy: Protos.CancellationPolicy): raml.CancellationPolicy = {
     raml.CancellationPolicy(
       maxDurationPerInstanceSeconds = if (cancellationPolicy.hasMaxDurationPerInstanceSeconds) cancellationPolicy.getMaxDurationPerInstanceSeconds else raml.CancellationPolicy.DefaultMaxDurationPerInstanceSeconds,
-      stopTryingAfterNumFailures = if (cancellationPolicy.hasStopTryingAfterNumFailures) cancellationPolicy.getStopTryingAfterNumFailures else raml.CancellationPolicy.DefaultStopTryingAfterNumFailures,
+      stopTryingAfterNumFailures = if (cancellationPolicy.hasStopTryingAfterNumFailures) Some(cancellationPolicy.getStopTryingAfterNumFailures) else None,
       stopTryingAfterSeconds = if (cancellationPolicy.hasStopTryingAfterSeconds) cancellationPolicy.getStopTryingAfterSeconds else raml.CancellationPolicy.DefaultStopTryingAfterSeconds
     )
   }

@@ -15,20 +15,19 @@ types:
     description: |
       Defines if and when a scheduled attempt is cancelled, or Marathon should give up to schedule any further instances.
     properties:
-      stopTryingAfterNumFailures:
+      stopTryingAfterNumFailures?:
         type: integer
         format: int32
         description: |
           Stop scheduling more instances for an attempt when this many instances terminated abnormally. If set to 0, the attempt will never stop trying. If the attempt should be cancelled after one failure, set this to 1.
         minimum: 0
-        default: 10
       stopTryingAfterSeconds:
         type: integer
         format: int32
         description: |
           Stop scheduling more instances for an attempt after this amount of seconds after starting the attempt. If set to 0, the attempt will never be cancelled.
         minimum: 0
-        default: 3600
+        default: 0
       maxDurationPerInstanceSeconds:
         type: integer
         format: int32
