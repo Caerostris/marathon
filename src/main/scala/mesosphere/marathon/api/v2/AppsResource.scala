@@ -29,6 +29,9 @@ import mesosphere.marathon.storage.repository.GroupRepository
 import mesosphere.marathon.stream.Implicits._
 import play.api.libs.json.{ JsObject, Json }
 
+import scala.concurrent.{ Await, ExecutionContext }
+import scala.concurrent.duration._
+
 @Path("v2/apps")
 @Consumes(Array(MediaType.APPLICATION_JSON))
 @Produces(Array(MarathonMediaType.PREFERRED_APPLICATION_JSON))
@@ -45,7 +48,7 @@ class AppsResource @Inject() (
     pluginManager: PluginManager,
     @Named("schedulerActor") schedulerActorProvider: Provider[ActorRef])(implicit
   val authenticator: Authenticator,
-    val authorizer: Authorizer) extends RestResource with AuthResource {
+    val authorizer: Authorizer, ec: ExecutionContext) extends RestResource with AuthResource {
 
   import AppsResource._
   import Normalization._
@@ -288,12 +291,20 @@ class AppsResource @Inject() (
         .getOrElse(throw AppNotFoundException(appId))
     }
 
-    val newVersion = clock.now()
-    val restartDeployment = result(
-      groupManager.updateApp(id.toRootPath, markForRestartingOrThrow, newVersion, force)
-    )
+    val runSpec = Await.result(groupRepository.root().map(_.transitiveRunSpecsById.get(appId)), 300 millis)
+    runSpec.map(runSpec =>
+      if (runSpec.lifecycle.affectsDeployment) {
+        val newVersion = clock.now ()
+        val restartDeployment = result (
+          groupManager.updateApp (id.toRootPath, markForRestartingOrThrow, newVersion, force)
+        )
 
-    deploymentResult(restartDeployment)
+        deploymentResult (restartDeployment)
+      } else {
+        schedulerActor ! StartInstances(runSpec.id, runSpec.version, runSpec.instances)
+        Response.ok().build()
+      }
+    ).getOrElse(Response.noContent().build())
   }
 
   /**
