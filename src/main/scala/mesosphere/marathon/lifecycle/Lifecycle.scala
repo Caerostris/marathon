@@ -1,22 +1,24 @@
 package mesosphere.marathon
 package lifecycle
 
-import mesosphere.marathon.raml.{ ContinuousSchedule, ManualSchedule, PeriodicSchedule }
+import mesosphere.marathon.raml.{ ContinuousSchedule, ManualSchedule }
 
 object Lifecycle {
   /**
     * The default lifecycle to be used for migrating old RunSpecs.
     */
-  val DefaultLifecycle = raml.ContinuousSchedule(CancellationPolicy.DefaultCancellationPolicy, affectsDeployment = true)
+  val DefaultLifecycle = raml.ContinuousSchedule(affectsDeployment = true)
 
   def toProto(lifecycle: raml.LifecycleSpec): Protos.LifecycleSpec = {
-    var builder = Protos.LifecycleSpec.newBuilder
-      .setCancellationPolicy(CancellationPolicy.toProto(lifecycle.cancellationPolicy))
+    val builder = Protos.LifecycleSpec.newBuilder
       .setAffectsDeployment(lifecycle.affectsDeployment)
 
-    builder = lifecycle match {
-      case _: ContinuousSchedule => builder.setContinuous(Protos.ContinuousScheduler.newBuilder().build())
-      case _: ManualSchedule => builder.setManual(Protos.ManualScheduler.newBuilder().build())
+    lifecycle match {
+      case manualSchedule: ManualSchedule =>
+        val manualScheduleBuilder = Protos.ManualScheduler.newBuilder()
+        manualSchedule.cancellationPolicy.foreach(
+          policy => manualScheduleBuilder.setCancellationPolicy(CancellationPolicy.toProto(policy)))
+        manualScheduleBuilder.build()
       case _ => builder.setContinuous(Protos.ContinuousScheduler.newBuilder().build())
     }
 
@@ -24,20 +26,18 @@ object Lifecycle {
   }
 
   def fromProto(lifecycle: Protos.LifecycleSpec): raml.LifecycleSpec = {
-    val cancellationPolicy = if (lifecycle.hasCancellationPolicy) {
-      CancellationPolicy.fromProto(lifecycle.getCancellationPolicy)
-    } else {
-      CancellationPolicy.DefaultCancellationPolicy
-    }
-
     val affectsDeployment = if (lifecycle.hasAffectsDeployment) lifecycle.getAffectsDeployment else true
 
     if (lifecycle.hasManual) {
-      ManualSchedule(cancellationPolicy, affectsDeployment)
-    } else if (lifecycle.hasPeriodic) {
-      PeriodicSchedule(cancellationPolicy, affectsDeployment)
+      val manualSchedule = lifecycle.getManual
+      val cancellationPolicy = if (manualSchedule.hasCancellationPolicy) {
+        Some(CancellationPolicy.fromProto(manualSchedule.getCancellationPolicy))
+      } else {
+        None
+      }
+      ManualSchedule(affectsDeployment, cancellationPolicy)
     } else {
-      ContinuousSchedule(cancellationPolicy, affectsDeployment)
+      ContinuousSchedule(affectsDeployment)
     }
   }
 }

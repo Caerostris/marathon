@@ -13,8 +13,10 @@ import org.slf4j.LoggerFactory
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 
-case class Attempt(attemptId: Attempt.Id, cancellationPolicy: CancellationPolicy) {
-  var remainingRetries: Option[Int] = cancellationPolicy.stopTryingAfterNumFailures.map(_ + 1)
+case class Attempt(attemptId: Attempt.Id, cancellationPolicy: Option[CancellationPolicy]) {
+  var remainingRetries: Option[Int] = cancellationPolicy.map(_.stopTryingAfterNumFailures + 1)
+  var totalTimeSeconds: Option[Int] = cancellationPolicy.map(_.stopTryingAfterSeconds)
+
   var launches: ListMap[Instance.Id, Launch] = ListMap.empty
 
   private[this] val log = LoggerFactory.getLogger(getClass.getName)

@@ -137,28 +137,23 @@ message ServiceDefinition {
 }
 
 message LifecycleSpec {
-  required CancellationPolicy cancellationPolicy = 1;
   oneof scheduler {
     ContinuousScheduler continuous = 2;
     ManualScheduler manual = 3;
-    PeriodicScheduler periodic = 4;
   }
   required bool affectsDeployment = 5;
 }
 
 message CancellationPolicy {
-  optional uint32 stopTryingAfterNumFailures = 1;
+  required uint32 stopTryingAfterNumFailures = 1;
   required uint32 stopTryingAfterSeconds = 2;
-  required uint32 maxDurationPerInstanceSeconds = 3;
 }
 
 message ContinuousScheduler {
 }
 
 message ManualScheduler {
-}
-
-message PeriodicScheduler {
+  optional CancellationPolicy cancellationPolicy = 1;
 }
 
 enum KillSelection {
