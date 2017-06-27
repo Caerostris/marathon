@@ -16443,11 +16443,11 @@ public final class Protos {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>required uint32 stopTryingAfterNumFailures = 1;</code>
+     * <code>optional uint32 stopTryingAfterNumFailures = 1;</code>
      */
     boolean hasStopTryingAfterNumFailures();
     /**
-     * <code>required uint32 stopTryingAfterNumFailures = 1;</code>
+     * <code>optional uint32 stopTryingAfterNumFailures = 1;</code>
      */
     int getStopTryingAfterNumFailures();
 
@@ -16579,13 +16579,13 @@ public final class Protos {
     public static final int STOPTRYINGAFTERNUMFAILURES_FIELD_NUMBER = 1;
     private int stopTryingAfterNumFailures_;
     /**
-     * <code>required uint32 stopTryingAfterNumFailures = 1;</code>
+     * <code>optional uint32 stopTryingAfterNumFailures = 1;</code>
      */
     public boolean hasStopTryingAfterNumFailures() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>required uint32 stopTryingAfterNumFailures = 1;</code>
+     * <code>optional uint32 stopTryingAfterNumFailures = 1;</code>
      */
     public int getStopTryingAfterNumFailures() {
       return stopTryingAfterNumFailures_;
@@ -16632,10 +16632,6 @@ public final class Protos {
       if (isInitialized == 1) return true;
       if (isInitialized == 0) return false;
 
-      if (!hasStopTryingAfterNumFailures()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       if (!hasStopTryingAfterSeconds()) {
         memoizedIsInitialized = 0;
         return false;
@@ -16874,10 +16870,6 @@ public final class Protos {
       }
 
       public final boolean isInitialized() {
-        if (!hasStopTryingAfterNumFailures()) {
-          
-          return false;
-        }
         if (!hasStopTryingAfterSeconds()) {
           
           return false;
@@ -16910,19 +16902,19 @@ public final class Protos {
 
       private int stopTryingAfterNumFailures_ ;
       /**
-       * <code>required uint32 stopTryingAfterNumFailures = 1;</code>
+       * <code>optional uint32 stopTryingAfterNumFailures = 1;</code>
        */
       public boolean hasStopTryingAfterNumFailures() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required uint32 stopTryingAfterNumFailures = 1;</code>
+       * <code>optional uint32 stopTryingAfterNumFailures = 1;</code>
        */
       public int getStopTryingAfterNumFailures() {
         return stopTryingAfterNumFailures_;
       }
       /**
-       * <code>required uint32 stopTryingAfterNumFailures = 1;</code>
+       * <code>optional uint32 stopTryingAfterNumFailures = 1;</code>
        */
       public Builder setStopTryingAfterNumFailures(int value) {
         bitField0_ |= 0x00000001;
@@ -16931,7 +16923,7 @@ public final class Protos {
         return this;
       }
       /**
-       * <code>required uint32 stopTryingAfterNumFailures = 1;</code>
+       * <code>optional uint32 stopTryingAfterNumFailures = 1;</code>
        */
       public Builder clearStopTryingAfterNumFailures() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -52699,7 +52691,7 @@ public final class Protos {
       "ic\030\004 \001(\0132&.mesosphere.marathon.PeriodicS",
       "chedulerH\000\022\031\n\021affectsDeployment\030\005 \002(\010B\013\n" +
       "\tscheduler\"\177\n\022CancellationPolicy\022\"\n\032stop" +
-      "TryingAfterNumFailures\030\001 \002(\r\022\036\n\026stopTryi" +
+      "TryingAfterNumFailures\030\001 \001(\r\022\036\n\026stopTryi" +
       "ngAfterSeconds\030\002 \002(\r\022%\n\035maxDurationPerIn" +
       "stanceSeconds\030\003 \002(\r\"\025\n\023ContinuousSchedul" +
       "er\"\021\n\017ManualScheduler\"\023\n\021PeriodicSchedul" +

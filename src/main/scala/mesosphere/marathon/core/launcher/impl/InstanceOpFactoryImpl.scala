@@ -107,8 +107,7 @@ class InstanceOpFactoryImpl(
         val instance = LegacyAppInstance(
           task,
           agentInfo,
-          app.unreachableStrategy,
-          app.lifecycle.cancellationPolicy.stopTryingAfterNumFailures.map(_ + 1)
+          app.unreachableStrategy
         )
         val instanceOp = taskOperationFactory.launchEphemeral(taskInfo, task, instance)
         OfferMatchResult.Match(app, request.offer, instanceOp, clock.now())
@@ -268,8 +267,7 @@ class InstanceOpFactoryImpl(
       ),
       tasksMap = Map(task.taskId -> task),
       runSpecVersion = runSpec.version,
-      unreachableStrategy = runSpec.unreachableStrategy,
-      runSpec.lifecycle.cancellationPolicy.stopTryingAfterNumFailures.map(_ + 1)
+      unreachableStrategy = runSpec.unreachableStrategy
     )
     val stateOp = InstanceUpdateOperation.Reserve(instance)
     taskOperationFactory.reserveAndCreateVolumes(frameworkId, stateOp, resourceMatch.resources, localVolumes)
@@ -331,8 +329,7 @@ object InstanceOpFactoryImpl {
         task.taskId -> task
       }(collection.breakOut),
       runSpecVersion = pod.version,
-      unreachableStrategy = pod.unreachableStrategy,
-      pod.lifecycle.cancellationPolicy.stopTryingAfterNumFailures.map(_ + 1)
+      unreachableStrategy = pod.unreachableStrategy
     )
   } // inferPodInstance
 }

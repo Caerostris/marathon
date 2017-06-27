@@ -4,6 +4,7 @@ package core.instance
 import java.util.Base64
 
 import com.fasterxml.uuid.{ EthernetAddress, Generators }
+import mesosphere.marathon.core.attempt.Attempt
 import mesosphere.marathon.core.condition.Condition
 import mesosphere.marathon.core.instance.Instance.{ AgentInfo, InstanceState }
 import mesosphere.marathon.core.task.Task
@@ -27,10 +28,10 @@ case class Instance(
     state: InstanceState,
     tasksMap: Map[Task.Id, Task],
     runSpecVersion: Timestamp,
-    unreachableStrategy: UnreachableStrategy,
-    remainingRestarts: Option[Int]) extends MarathonState[Protos.Json, Instance] with Placed {
+    unreachableStrategy: UnreachableStrategy) extends MarathonState[Protos.Json, Instance] with Placed {
 
   val runSpecId: PathId = instanceId.runSpecId
+  val attemptId: Attempt.Id = Attempt.Id.forRunSpec(runSpecId)
   val isLaunched: Boolean = state.condition.isActive
 
   def isReserved: Boolean = state.condition == Condition.Reserved
@@ -325,8 +326,7 @@ object Instance {
       (__ \ "tasksMap").write[Map[Task.Id, Task]] ~
       (__ \ "runSpecVersion").write[Timestamp] ~
       (__ \ "state").write[InstanceState] ~
-      (__ \ "unreachableStrategy").write[raml.UnreachableStrategy] ~
-      (__ \ "remainingRestarts").writeNullable[Int]
+      (__ \ "unreachableStrategy").write[raml.UnreachableStrategy]
     ) { (i) =>
         (
           i.instanceId,
@@ -334,8 +334,8 @@ object Instance {
           i.tasksMap,
           i.runSpecVersion,
           i.state,
-          Raml.toRaml(i.unreachableStrategy),
-          i.remainingRestarts)
+          Raml.toRaml(i.unreachableStrategy)
+        )
       }
   }
 
@@ -346,12 +346,11 @@ object Instance {
       (__ \ "tasksMap").read[Map[Task.Id, Task]] ~
       (__ \ "runSpecVersion").read[Timestamp] ~
       (__ \ "state").read[InstanceState] ~
-      (__ \ "unreachableStrategy").readNullable[raml.UnreachableStrategy] ~
-      (__ \ "remainingRestarts").readNullable[Int]
-    ) { (instanceId, agentInfo, tasksMap, runSpecVersion, state, maybeUnreachableStrategy, remainingRestarts) =>
+      (__ \ "unreachableStrategy").readNullable[raml.UnreachableStrategy]
+    ) { (instanceId, agentInfo, tasksMap, runSpecVersion, state, maybeUnreachableStrategy) =>
         val unreachableStrategy = maybeUnreachableStrategy.
           map(Raml.fromRaml(_)).getOrElse(UnreachableStrategy.default())
-        new Instance(instanceId, agentInfo, state, tasksMap, runSpecVersion, unreachableStrategy, remainingRestarts)
+        new Instance(instanceId, agentInfo, state, tasksMap, runSpecVersion, unreachableStrategy)
       }
   }
 
@@ -375,25 +374,17 @@ object Instance {
   * - HealthCheckActor (will be changed soon)
   * - InstanceOpFactoryHelper and InstanceOpFactoryImpl (start resident and ephemeral tasks for an AppDefinition)
   * - Migration to 1.4
-  *
-  * @param instanceId calculated instanceId based on the taskId
-  * @param agentInfo according agent information of the task
-  * @param state calculated instanceState based on taskState
-  * @param tasksMap a map of one key/value pair consisting of the actual task
-  * @param runSpecVersion the version of the task related runSpec
-  * @param remainingRestarts the number of times this instance can still be restarted before the attempt is given up
   */
 object LegacyAppInstance {
   def apply(
     task: Task,
     agentInfo: AgentInfo,
-    unreachableStrategy: UnreachableStrategy,
-    remainingRestarts: Option[Int]
+    unreachableStrategy: UnreachableStrategy
   ): Instance = {
     val since = task.status.startedAt.getOrElse(task.status.stagedAt)
     val tasksMap = Map(task.taskId -> task)
     val state = Instance.InstanceState(None, tasksMap, since, unreachableStrategy)
 
-    new Instance(task.taskId.instanceId, agentInfo, state, tasksMap, task.runSpecVersion, unreachableStrategy, remainingRestarts)
+    new Instance(task.taskId.instanceId, agentInfo, state, tasksMap, task.runSpecVersion, unreachableStrategy)
   }
 }

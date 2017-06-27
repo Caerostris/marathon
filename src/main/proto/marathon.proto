@@ -147,7 +147,7 @@ message LifecycleSpec {
 }
 
 message CancellationPolicy {
-  required uint32 stopTryingAfterNumFailures = 1;
+  optional uint32 stopTryingAfterNumFailures = 1;
   required uint32 stopTryingAfterSeconds = 2;
   required uint32 maxDurationPerInstanceSeconds = 3;
 }
