@@ -16,16 +16,17 @@ import mesosphere.marathon.api.v2.json.Formats._
 import mesosphere.marathon.api.v2.validation.AppValidation
 import mesosphere.marathon.api.{ AuthResource, MarathonMediaType, PATCH, RestResource }
 import mesosphere.marathon.core.appinfo._
+import mesosphere.marathon.core.attempt.Attempt
 import mesosphere.marathon.core.base.Clock
 import mesosphere.marathon.core.event.ApiPostEvent
 import mesosphere.marathon.core.group.GroupManager
 import mesosphere.marathon.core.launchqueue.LaunchQueue
 import mesosphere.marathon.core.plugin.PluginManager
 import mesosphere.marathon.plugin.auth._
-import mesosphere.marathon.raml.{ AppConversion, AppExternalVolume, AppPersistentVolume, Raml }
+import mesosphere.marathon.raml.{ AppConversion, AppExternalVolume, AppPersistentVolume, ManualSchedule, Raml }
 import mesosphere.marathon.state.PathId._
 import mesosphere.marathon.state._
-import mesosphere.marathon.storage.repository.GroupRepository
+import mesosphere.marathon.storage.repository.{ AttemptRepository, GroupRepository }
 import mesosphere.marathon.stream.Implicits._
 import play.api.libs.json.{ JsObject, Json }
 
@@ -44,6 +45,7 @@ class AppsResource @Inject() (
     val config: MarathonConf,
     groupManager: GroupManager,
     groupRepository: GroupRepository,
+    attemptRepository: AttemptRepository,
     launchQueue: LaunchQueue,
     pluginManager: PluginManager,
     @Named("schedulerActor") schedulerActorProvider: Provider[ActorRef])(implicit
@@ -109,6 +111,12 @@ class AppsResource @Inject() (
         result(groupManager.updateAppWithoutDeployment(app.id, createOrThrow, app.version, Seq(app)))
         schedulerActor ! StartInstances(app.id, app.version, numInstances = 1)
         None
+      }
+
+      app.lifecycle match {
+        case manual: ManualSchedule => manual.cancellationPolicy.foreach(cancellationPolicy => {
+          result(attemptRepository.store(new Attempt(Attempt.Id.forRunSpec(app.id), cancellationPolicy)))
+        })
       }
 
       val appWithDeployments = AppInfo(

@@ -5,6 +5,7 @@ import com.fasterxml.uuid.{ EthernetAddress, Generators }
 import mesosphere.marathon.core.attempt.Attempt.Launch
 import mesosphere.marathon.core.condition.Condition
 import mesosphere.marathon.core.instance.Instance
+import mesosphere.marathon.core.instance.update.InstanceChange
 import mesosphere.marathon.raml.CancellationPolicy
 import mesosphere.marathon.state.PathId
 import org.apache.mesos.{ Protos => MesosProtos }
@@ -15,39 +16,30 @@ import play.api.libs.functional.syntax._
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 
-case class Attempt(attemptId: Attempt.Id, cancellationPolicy: Option[CancellationPolicy]) {
-  var remainingRetries: Option[Int] = cancellationPolicy.map(_.stopTryingAfterNumFailures + 1)
-  var totalTimeSeconds: Option[Int] = cancellationPolicy.map(_.stopTryingAfterSeconds)
+case class Attempt(attemptId: Attempt.Id, cancellationPolicy: CancellationPolicy) {
+  var remainingRetries: Int = cancellationPolicy.stopTryingAfterNumFailures + 1
+  var totalTimeSeconds: Option[Int] = if (cancellationPolicy.stopTryingAfterSeconds > 0) Some(cancellationPolicy.stopTryingAfterSeconds) else None
 
   var launches: ListMap[Instance.Id, Launch] = ListMap.empty
 
   private[this] val log = LoggerFactory.getLogger(getClass.getName)
 
-  def permitsRestart(): Boolean = remainingRetries.forall(_ > 0)
+  def permitsRestart(): Boolean = remainingRetries > 0
 
-  def setInstance(instanceId: Instance.Id, condition: Condition) = {
-    launches += (instanceId -> Launch(instanceId, condition))
-  }
-
-  def registerResult(instanceId: Instance.Id, condition: Condition) = {
+  def registerInstanceChange(change: InstanceChange) = {
+    val instanceId = change.instance.instanceId
     if (!launches.contains(instanceId)) {
       log.warn(s"Registered result for non-existent instance id $instanceId in attempt $attemptId")
     }
-    setInstance(instanceId, condition)
 
-    if (!finished) {
-      remainingRetries = remainingRetries.map(_ - 1)
+    launches += (instanceId -> Launch(instanceId, change.condition))
+
+    if (change.condition == Condition.Failed) {
+      remainingRetries -= 1
     }
   }
 
-  def finished = launches.lastOption.exists(entry => !isFailure(entry._2.last_condition))
-
-  private[this] def isFailure(condition: Condition): Boolean = {
-    condition match {
-      case _: Condition.Failure => true
-      case _ => false
-    }
-  }
+  def finished = !permitsRestart() || launches.lastOption.exists(_._2.last_condition == Condition.Finished)
 }
 
 object Attempt {
@@ -69,7 +61,7 @@ object Attempt {
 
     def runSpecId(attemptId: String): PathId =
       attemptId match {
-        case AttemptIdRegex(runSpecId, _, _) => PathId.fromSafePath(runSpecId)
+        case AttemptIdRegex(runSpecId, _) => PathId.fromSafePath(runSpecId)
         case _ => throw new MatchError("unable to extract runSpecId from attemptId " + attemptId)
       }
 
@@ -82,7 +74,7 @@ object Attempt {
   implicit val attemptJsonWrites: Writes[Attempt] = {
     (
       (__ \ "attemptId").write[Attempt.Id] ~
-      (__ \ "cancellationPolicy").writeNullable[CancellationPolicy]
+      (__ \ "cancellationPolicy").write[CancellationPolicy]
     ) { (a) =>
         (
           a.attemptId,
@@ -94,7 +86,7 @@ object Attempt {
   implicit val attemptJsonReads: Reads[Attempt] = {
     (
       (__ \ "attemptId").read[Attempt.Id] ~
-      (__ \ "cancellationPolicy").readNullable[CancellationPolicy]
+      (__ \ "cancellationPolicy").read[CancellationPolicy]
     ) { (attemptId, cancellationPolicy) => new Attempt(attemptId, cancellationPolicy) }
   }
 }

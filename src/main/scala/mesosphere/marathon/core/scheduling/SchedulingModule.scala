@@ -5,6 +5,9 @@ import com.google.inject.Inject
 import mesosphere.marathon.core.scheduling.behavior.InstanceChangeBehavior
 import mesosphere.marathon.core.scheduling.behavior.impl.{ InstanceChangeBehaviorImpl, StepsProcessor }
 import mesosphere.marathon.core.task.update.impl.steps._
+import mesosphere.marathon.storage.StorageModule
+
+import scala.concurrent.ExecutionContext
 
 /**
   * Defines the behaviors to apply upon instance state changes.
@@ -13,7 +16,13 @@ trait SchedulingModule {
   def instanceChangeBehavior: InstanceChangeBehavior
 }
 
-private[core] class SchedulingModuleImpl(instanceChangeBehaviorSteps: InstanceChangeBehaviorSteps) extends SchedulingModule {
+private[core] class SchedulingModuleImpl(
+    instanceChangeBehaviorSteps: InstanceChangeBehaviorSteps,
+    storageModule: StorageModule)(implicit exc: ExecutionContext) extends SchedulingModule {
+
+  // TODO: This is quite in a hack in order to not run into Guice circular dependency issues.
+  val attemptUpdateStepImpl = new AttemptUpdateStepImpl(storageModule.attemptRepository)
+
   override lazy val instanceChangeBehavior: InstanceChangeBehavior = {
     val continuousBehavior = {
       // This is a sequence on purpose. The specified steps are executed in order for every
@@ -33,6 +42,7 @@ private[core] class SchedulingModuleImpl(instanceChangeBehaviorSteps: InstanceCh
 
     val manualBehavior = {
       val manualSteps = Seq(
+        attemptUpdateStepImpl,
         instanceChangeBehaviorSteps.notifyHealthCheckManagerStepImpl,
         instanceChangeBehaviorSteps.notifyRateLimiterStepImpl,
         instanceChangeBehaviorSteps.notifyLaunchQueueStepImpl,

@@ -34,6 +34,7 @@ import mesosphere.marathon.core.task.tracker.InstanceTrackerModule
 import mesosphere.marathon.core.task.update.TaskStatusUpdateProcessor
 import mesosphere.marathon.storage.StorageModule
 
+import scala.concurrent.ExecutionContext
 import scala.util.Random
 
 /**
@@ -53,7 +54,7 @@ class CoreModuleImpl @Inject() (
   scheduler: Provider[DeploymentService],
   instanceChangeBehaviorSteps: InstanceChangeBehaviorSteps,
   taskStatusUpdateProcessor: TaskStatusUpdateProcessor
-)
+)(implicit exc: ExecutionContext)
     extends CoreModule {
 
   // INFRASTRUCTURE LAYER
@@ -74,11 +75,6 @@ class CoreModuleImpl @Inject() (
   // TASKS
 
   override lazy val taskBusModule = new TaskBusModule()
-  override lazy val schedulingModule = new SchedulingModuleImpl(instanceChangeBehaviorSteps)
-  override lazy val taskTrackerModule =
-    new InstanceTrackerModule(clock, marathonConf, leadershipModule,
-      storageModule.instanceRepository, storageModule.groupRepository, schedulingModule)(actorsModule.materializer)
-  override lazy val taskJobsModule = new TaskJobsModule(marathonConf, leadershipModule, clock)
   override lazy val storageModule = StorageModule(
     marathonConf,
     lifecycleState)(
@@ -86,6 +82,11 @@ class CoreModuleImpl @Inject() (
     ExecutionContexts.global,
     actorSystem.scheduler,
     actorSystem)
+  override lazy val schedulingModule = new SchedulingModuleImpl(instanceChangeBehaviorSteps, storageModule)
+  override lazy val taskTrackerModule =
+    new InstanceTrackerModule(clock, marathonConf, leadershipModule,
+      storageModule.instanceRepository, storageModule.groupRepository, schedulingModule)(actorsModule.materializer)
+  override lazy val taskJobsModule = new TaskJobsModule(marathonConf, leadershipModule, clock)
 
   // READINESS CHECKS
   override lazy val readinessModule = new ReadinessModule(actorSystem, actorsModule.materializer)
