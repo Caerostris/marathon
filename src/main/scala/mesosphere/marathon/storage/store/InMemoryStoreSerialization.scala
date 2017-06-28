@@ -5,11 +5,13 @@ import java.time.OffsetDateTime
 
 import akka.http.scaladsl.marshalling.Marshaller
 import akka.http.scaladsl.unmarshalling.Unmarshaller
+import mesosphere.marathon.core.attempt.Attempt
 import mesosphere.marathon.core.instance.Instance
 import mesosphere.marathon.core.instance.Instance.Id
 import mesosphere.marathon.core.pod.PodDefinition
 import mesosphere.marathon.core.storage.store.IdResolver
 import mesosphere.marathon.core.storage.store.impl.memory.{ Identity, RamId }
+import mesosphere.marathon.core.storage.store.impl.zk.ZkId
 import mesosphere.marathon.core.task.Task
 import mesosphere.marathon.raml.RuntimeConfiguration
 import mesosphere.marathon.state.{ AppDefinition, PathId, TaskFailure }
@@ -50,6 +52,16 @@ trait InMemoryStoreSerialization {
       override def fromStorageId(key: RamId): Id = Instance.Id(key.id)
       override val hasVersions: Boolean = false
       override def version(v: Instance): OffsetDateTime = OffsetDateTime.MIN
+    }
+
+  implicit val attemptResolver: IdResolver[Attempt.Id, Attempt, String, RamId] =
+    new IdResolver[Attempt.Id, Attempt, String, RamId] {
+      override def toStorageId(id: Attempt.Id, version: Option[OffsetDateTime]): RamId =
+        RamId(category, id.idString, version)
+      override val category: String = "attempt"
+      override def fromStorageId(key: RamId): Attempt.Id = Attempt.Id(key.id)
+      override val hasVersions = false
+      override def version(v: Attempt): OffsetDateTime = OffsetDateTime.MIN
     }
 
   implicit val taskResolver: IdResolver[Task.Id, Task, String, RamId] =

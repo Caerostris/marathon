@@ -17,6 +17,7 @@ import scala.concurrent.ExecutionContext
   */
 trait StorageModule {
   val instanceRepository: InstanceRepository
+  val attemptRepository: AttemptRepository
   val deploymentRepository: DeploymentRepository
   val taskFailureRepository: TaskFailureRepository
   val groupRepository: GroupRepository
@@ -47,6 +48,7 @@ object StorageModule {
 
         val taskRepository = TaskRepository.zkRepository(store)
         val instanceRepository = InstanceRepository.zkRepository(store)
+        val attemptRepository = AttemptRepository.zkRepository(store)
         val deploymentRepository = DeploymentRepository.zkRepository(store, groupRepository,
           appRepository, podRepository, zk.maxVersions)
         val taskFailureRepository = TaskFailureRepository.zkRepository(store)
@@ -67,6 +69,7 @@ object StorageModule {
 
         StorageModuleImpl(
           instanceRepository,
+          attemptRepository,
           deploymentRepository,
           taskFailureRepository,
           groupRepository,
@@ -82,6 +85,7 @@ object StorageModule {
         val podRepository = PodRepository.inMemRepository(store)
         val taskRepository = TaskRepository.inMemRepository(store)
         val instanceRepository = InstanceRepository.inMemRepository(store)
+        val attemptRepository = AttemptRepository.inMemRepository(store)
         val groupRepository = GroupRepository.inMemRepository(store, appRepository, podRepository)
         val deploymentRepository = DeploymentRepository.inMemRepository(store, groupRepository,
           appRepository, podRepository, mem.maxVersions)
@@ -103,6 +107,7 @@ object StorageModule {
 
         StorageModuleImpl(
           instanceRepository,
+          attemptRepository,
           deploymentRepository,
           taskFailureRepository,
           groupRepository,
@@ -118,6 +123,7 @@ object StorageModule {
 
 private[storage] case class StorageModuleImpl(
   instanceRepository: InstanceRepository,
+  attemptRepository: AttemptRepository,
   deploymentRepository: DeploymentRepository,
   taskFailureRepository: TaskFailureRepository,
   groupRepository: GroupRepository,

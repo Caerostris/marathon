@@ -9,6 +9,8 @@ import mesosphere.marathon.raml.CancellationPolicy
 import mesosphere.marathon.state.PathId
 import org.apache.mesos.{ Protos => MesosProtos }
 import org.slf4j.LoggerFactory
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
@@ -70,5 +72,29 @@ object Attempt {
         case AttemptIdRegex(runSpecId, _, _) => PathId.fromSafePath(runSpecId)
         case _ => throw new MatchError("unable to extract runSpecId from attemptId " + attemptId)
       }
+
+    implicit val attemptIdFormat = Format(
+      Reads.of[String](Reads.minLength[String](3)).map(Attempt.Id(_)),
+      Writes[Attempt.Id] { id => JsString(id.idString) }
+    )
+  }
+
+  implicit val attemptJsonWrites: Writes[Attempt] = {
+    (
+      (__ \ "attemptId").write[Attempt.Id] ~
+      (__ \ "cancellationPolicy").writeNullable[CancellationPolicy]
+    ) { (a) =>
+        (
+          a.attemptId,
+          a.cancellationPolicy
+        )
+      }
+  }
+
+  implicit val attemptJsonReads: Reads[Attempt] = {
+    (
+      (__ \ "attemptId").read[Attempt.Id] ~
+      (__ \ "cancellationPolicy").readNullable[CancellationPolicy]
+    ) { (attemptId, cancellationPolicy) => new Attempt(attemptId, cancellationPolicy) }
   }
 }

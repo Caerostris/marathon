@@ -9,6 +9,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshaller
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import akka.{ Done, NotUsed }
+import mesosphere.marathon.core.attempt.Attempt
 import mesosphere.marathon.core.deployment.DeploymentPlan
 import mesosphere.marathon.core.instance.Instance
 import mesosphere.marathon.core.pod.PodDefinition
@@ -196,6 +197,24 @@ object TaskFailureRepository {
   }
 }
 
+trait AttemptRepository extends Repository[Attempt.Id, Attempt] {
+  def attempts(runSpecId: PathId): Source[Attempt.Id, NotUsed] = {
+    ids().filter(_.runSpecId == runSpecId)
+  }
+}
+
+object AttemptRepository {
+  def zkRepository(persistenceStore: PersistenceStore[ZkId, String, ZkSerialized]): AttemptRepository = {
+    import mesosphere.marathon.storage.store.ZkStoreSerialization._
+    new AttemptRepositoryImpl(persistenceStore)
+  }
+
+  def inMemRepository(persistenceStore: PersistenceStore[RamId, String, Identity]): AttemptRepository = {
+    import mesosphere.marathon.storage.store.InMemoryStoreSerialization._
+    new AttemptRepositoryImpl(persistenceStore)
+  }
+}
+
 trait FrameworkIdRepository extends SingletonRepository[FrameworkId]
 
 object FrameworkIdRepository {
@@ -313,6 +332,13 @@ class InstanceRepositoryImpl[K, C, S](persistenceStore: PersistenceStore[K, C, S
   unmarshaller: Unmarshaller[S, Instance])
     extends PersistenceStoreRepository[Instance.Id, Instance, K, C, S](persistenceStore, _.instanceId)
     with InstanceRepository
+
+class AttemptRepositoryImpl[K, C, S](persistenceStore: PersistenceStore[K, C, S])(implicit
+  ir: IdResolver[Attempt.Id, Attempt, C, K],
+  marshaller: Marshaller[Attempt, S],
+  unmarshaller: Unmarshaller[S, Attempt])
+    extends PersistenceStoreRepository[Attempt.Id, Attempt, K, C, S](persistenceStore, _.attemptId)
+    with AttemptRepository
 
 class TaskFailureRepositoryImpl[K, C, S](persistenceStore: PersistenceStore[K, C, S])(
   implicit
