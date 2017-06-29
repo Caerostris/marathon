@@ -6,9 +6,10 @@ import akka.event.EventStream
 import com.google.inject.Inject
 import mesosphere.marathon.core.event.InstanceHealthChanged
 import mesosphere.marathon.core.instance.update.{ InstanceChange, InstanceChangeHandler }
+import mesosphere.marathon.storage.StorageModule
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 /**
   * Post this update to the internal event stream.
@@ -19,7 +20,7 @@ class PostToEventStreamStepImpl @Inject() (eventBus: EventStream) extends Instan
 
   override def name: String = "postTaskStatusEvent"
 
-  override def process(update: InstanceChange): Future[Done] = continueOnError(name, update) { update =>
+  override def process(update: InstanceChange, storageModule: StorageModule)(implicit ec: ExecutionContext): Future[Done] = continueOnError(name, update) { update =>
     log.debug("Publishing events for {} of runSpec [{}]: {}", update.id, update.runSpecId, update.condition)
     update.events.foreach(eventBus.publish)
 

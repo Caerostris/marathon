@@ -18,10 +18,7 @@ trait SchedulingModule {
 
 private[core] class SchedulingModuleImpl(
     instanceChangeBehaviorSteps: InstanceChangeBehaviorSteps,
-    storageModule: StorageModule)(implicit exc: ExecutionContext) extends SchedulingModule {
-
-  // TODO: This is quite in a hack in order to not run into Guice circular dependency issues.
-  val attemptUpdateStepImpl = new AttemptUpdateStepImpl(storageModule.attemptRepository)
+    storageModule: StorageModule)(implicit ec: ExecutionContext) extends SchedulingModule {
 
   override lazy val instanceChangeBehavior: InstanceChangeBehavior = {
     val continuousBehavior = {
@@ -37,12 +34,12 @@ private[core] class SchedulingModuleImpl(
         instanceChangeBehaviorSteps.postToEventStreamStepImpl,
         instanceChangeBehaviorSteps.scaleAppUpdateStepImpl
       )
-      new StepsProcessor(continuousUpdateSteps)
+      new StepsProcessor(continuousUpdateSteps, storageModule)
     }
 
     val manualBehavior = {
       val manualSteps = Seq(
-        attemptUpdateStepImpl,
+        instanceChangeBehaviorSteps.attemptUpdateStepImpl,
         instanceChangeBehaviorSteps.notifyHealthCheckManagerStepImpl,
         instanceChangeBehaviorSteps.notifyRateLimiterStepImpl,
         instanceChangeBehaviorSteps.notifyLaunchQueueStepImpl,
@@ -50,7 +47,7 @@ private[core] class SchedulingModuleImpl(
         instanceChangeBehaviorSteps.postToEventStreamStepImpl,
         instanceChangeBehaviorSteps.restartJobStepImpl
       )
-      new StepsProcessor(manualSteps)
+      new StepsProcessor(manualSteps, storageModule)
     }
 
     new InstanceChangeBehaviorImpl(continuousBehavior, manualBehavior)
@@ -61,6 +58,7 @@ private[core] class SchedulingModuleImpl(
   * Used for wiring steps that are relevant for handling instance state changes.
   */
 private[core] class InstanceChangeBehaviorSteps @Inject() (
+  val attemptUpdateStepImpl: AttemptUpdateStepImpl,
   val notifyHealthCheckManagerStepImpl: NotifyHealthCheckManagerStepImpl,
   val notifyRateLimiterStepImpl: NotifyRateLimiterStepImpl,
   val notifyLaunchQueueStepImpl: NotifyLaunchQueueStepImpl,

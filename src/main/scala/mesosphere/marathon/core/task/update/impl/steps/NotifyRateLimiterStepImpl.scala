@@ -10,9 +10,10 @@ import mesosphere.marathon.core.group.GroupManager
 import mesosphere.marathon.core.instance.update.{ InstanceChange, InstanceChangeHandler }
 import mesosphere.marathon.core.launchqueue.LaunchQueue
 import mesosphere.marathon.state.PathId
+import mesosphere.marathon.storage.StorageModule
 
 import scala.async.Async._
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 class NotifyRateLimiterStepImpl @Inject() (
     launchQueueProvider: Provider[LaunchQueue],
@@ -26,7 +27,7 @@ class NotifyRateLimiterStepImpl @Inject() (
 
   override def name: String = "notifyRateLimiter"
 
-  override def process(update: InstanceChange): Future[Done] = continueOnError(name, update) { update =>
+  override def process(update: InstanceChange, storageModule: StorageModule)(implicit ec: ExecutionContext): Future[Done] = continueOnError(name, update) { update =>
     if (limitWorthy(update.condition)) {
       notifyRateLimiter(update.runSpecId, update.instance.runSpecVersion.toOffsetDateTime)
     } else {

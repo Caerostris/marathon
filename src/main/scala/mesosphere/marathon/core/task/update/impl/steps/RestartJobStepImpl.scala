@@ -9,37 +9,36 @@ import com.google.inject.{ Inject, Provider }
 import mesosphere.marathon.MarathonSchedulerActor.StartInstances
 import mesosphere.marathon.core.condition.Condition
 import mesosphere.marathon.core.instance.update.{ InstanceChange, InstanceChangeHandler }
-import mesosphere.marathon.core.launchqueue.LaunchQueue
+import mesosphere.marathon.storage.StorageModule
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 //scalastyle:on
 /**
   * Trigger rescale of affected app if a task died or a reserved task timed out.
   */
 class RestartJobStepImpl @Inject() (
-    launchQueueProvider: Provider[LaunchQueue],
     @Named("schedulerActor") schedulerActorProvider: Provider[ActorRef]) extends InstanceChangeHandler {
 
   private[this] val log = LoggerFactory.getLogger(getClass)
   private[this] lazy val schedulerActor = schedulerActorProvider.get()
 
-  private[this] lazy val launchQueue = launchQueueProvider.get()
-
   override def name: String = "restartJob"
 
-  override def process(update: InstanceChange): Future[Done] = continueOnError(name, update) { update =>
-    calcRestartEvent(update).foreach(event => schedulerActor ! event)
-    Future.successful(Done)
-  }
-
-  def calcRestartEvent(change: InstanceChange): Option[StartInstances] = {
-    change.condition match {
-      case _: Condition.Failure if change.instance.remainingRestarts.forall(_ > 0) =>
-        val runSpecId = change.runSpecId
-        log.warn(s"Initiating a restart for run spec [$runSpecId] due to failure")
-        Some(StartInstances(runSpecId, change.runSpecVersion, numInstances = 1))
-      case _ => None
+  override def process(change: InstanceChange, storageModule: StorageModule)(implicit exc: ExecutionContext): Future[Done] = continueOnError(name, change) { change =>
+    if (change.condition == Condition.Failed) {
+      storageModule.attemptRepository.get(change.instance.attemptId).map(maybeAttempt => {
+        val mayRestart = maybeAttempt.forall(attempt => attempt.permitsRestart())
+        if (mayRestart) {
+          log.info(s"Restarting job after failure ${change.runSpecId}")
+          schedulerActor ! StartInstances(change.runSpecId, change.runSpecVersion, 1)
+        } else {
+          log.warn(s"Job ${change.runSpecId} failures exceeded cancellation policy. Not restarting.")
+        }
+        Done
+      })
+    } else {
+      Future.successful(Done)
     }
   }
 }

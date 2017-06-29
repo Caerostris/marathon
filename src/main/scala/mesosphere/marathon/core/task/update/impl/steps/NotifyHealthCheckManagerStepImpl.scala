@@ -5,8 +5,9 @@ import akka.Done
 import com.google.inject.{ Inject, Provider }
 import mesosphere.marathon.core.health.HealthCheckManager
 import mesosphere.marathon.core.instance.update.{ InstanceChange, InstanceChangeHandler }
+import mesosphere.marathon.storage.StorageModule
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 /**
   * Notify the health check manager of this update.
@@ -17,7 +18,7 @@ class NotifyHealthCheckManagerStepImpl @Inject() (healthCheckManagerProvider: Pr
 
   lazy val healthCheckManager: HealthCheckManager = healthCheckManagerProvider.get
 
-  override def process(update: InstanceChange): Future[Done] = continueOnError(name, update) { update =>
+  override def process(update: InstanceChange, storageModule: StorageModule)(implicit ec: ExecutionContext): Future[Done] = continueOnError(name, update) { update =>
     update.instance.tasksMap.valuesIterator.flatMap(_.status.mesosStatus).foreach { mesosStatus =>
       // TODO(PODS): the healthCheckManager should collect health status based on instances, not tasks
       healthCheckManager.update(mesosStatus, update.runSpecVersion)

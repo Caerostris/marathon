@@ -55,13 +55,14 @@ object Attempt {
   case class Launch(instanceId: Instance.Id, last_condition: Condition)
 
   object Id {
-    private[this] val AttemptIdRegex: Regex = """^(.+)\.attempt-([^\.]+)$""".r
+    // private[this] val AttemptIdRegex: Regex = """^(.+)\.attempt-([^\.]+)$""".r
+    private[this] val AttemptIdRegex: Regex = """^(.+)\.attempt$""".r
 
-    def forRunSpec(id: PathId): Id = Attempt.Id(id.safePath + ".attempt-" + uuidGenerator.generate())
+    def forRunSpec(id: PathId): Id = Attempt.Id(id.safePath + ".attempt")
 
     def runSpecId(attemptId: String): PathId =
       attemptId match {
-        case AttemptIdRegex(runSpecId, _) => PathId.fromSafePath(runSpecId)
+        case AttemptIdRegex(runSpecId) => PathId.fromSafePath(runSpecId)
         case _ => throw new MatchError("unable to extract runSpecId from attemptId " + attemptId)
       }
 

@@ -7,8 +7,9 @@ import akka.Done
 import com.google.inject.Provider
 import mesosphere.marathon.core.instance.update.{ InstanceChange, InstanceChangeHandler }
 import mesosphere.marathon.core.task.bus.TaskStatusEmitter
+import mesosphere.marathon.storage.StorageModule
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 /**
   * Forward the update to the taskStatusEmitter.
@@ -24,7 +25,7 @@ class TaskStatusEmitterPublishStepImpl @Inject() (
 
   override def name: String = "emitUpdate"
 
-  override def process(update: InstanceChange): Future[Done] = continueOnError(name, update) { update =>
+  override def process(update: InstanceChange, storageModule: StorageModule)(implicit ec: ExecutionContext): Future[Done] = continueOnError(name, update) { update =>
     taskStatusEmitter.publish(update)
     Future.successful(Done)
   }

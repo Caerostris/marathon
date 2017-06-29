@@ -9,9 +9,10 @@ import com.google.inject.{ Inject, Provider }
 import mesosphere.marathon.MarathonSchedulerActor.ScaleRunSpec
 import mesosphere.marathon.core.condition.Condition
 import mesosphere.marathon.core.instance.update.{ InstanceChange, InstanceChangeHandler }
+import mesosphere.marathon.storage.StorageModule
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 //scalastyle:on
 /**
   * Trigger rescale of affected app if a task died or a reserved task timed out.
@@ -29,7 +30,7 @@ class ScaleAppUpdateStepImpl @Inject() (
 
   override def name: String = "scaleApp"
 
-  override def process(update: InstanceChange): Future[Done] = continueOnError(name, update) { update =>
+  override def process(update: InstanceChange, storageModule: StorageModule)(implicit ec: ExecutionContext): Future[Done] = continueOnError(name, update) { update =>
     // TODO(PODS): it should be up to a tbd TaskUnreachableBehavior how to handle Unreachable
     calcScaleEvent(update).foreach(event => schedulerActor ! event)
     Future.successful(Done)

@@ -8,8 +8,9 @@ import mesosphere.marathon.core.event.MarathonEvent
 import mesosphere.marathon.core.instance.Instance.InstanceState
 import mesosphere.marathon.core.instance.Instance
 import mesosphere.marathon.state.{ PathId, Timestamp }
+import mesosphere.marathon.storage.StorageModule
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.control.NonFatal
 
 /**
@@ -22,7 +23,7 @@ import scala.util.control.NonFatal
 // TODO(PODS): rename to InstanceUpdateHandler for consistency
 trait InstanceChangeHandler extends StrictLogging {
   def name: String
-  def process(update: InstanceChange): Future[Done]
+  def process(update: InstanceChange, storageModule: StorageModule)(implicit ec: ExecutionContext): Future[Done]
 
   def continueOnError(name: String, update: InstanceChange)(handle: (InstanceChange) => Future[Done]): Future[Done] = {
     import mesosphere.marathon.core.async.ExecutionContexts.global
