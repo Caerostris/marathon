@@ -98,6 +98,24 @@ private class TaskLaunchQueue(private[this] val initialCount: Int, initialAttemp
   }
 
   def nonEmpty = attemptLaunchQueue.nonEmpty
+
+  def setAttemptCount(attempt: Option[Attempt], count: Int) = {
+    // Each attempt should only ever appear in the queue once at a time
+    // This method is only required since any run spec with continuous schedule currently does not use attempts
+    // and does not make much sense when attempts are used.
+    // TODO: Change underlying concepts to be able to get rid of this method
+    val numQueued = attemptLaunchQueue.count(_.equals(attempt))
+    if (numQueued < count) {
+      attemptLaunchQueue ++ mutable.Queue.fill(count - numQueued)(attempt)
+    } else if (numQueued > count) {
+      var additionalQueued = numQueued - count
+      attemptLaunchQueue = attemptLaunchQueue.filter(listedAttempt => {
+        val remove = listedAttempt.equals(attempt) && additionalQueued > 0
+        additionalQueued -= 1
+        remove
+      })
+    }
+  }
 }
 
 /**
@@ -119,7 +137,7 @@ private class TaskLauncherActor(
     private[this] var initialAttempt: Option[Attempt]) extends Actor with StrictLogging with Stash {
   // scalastyle:on parameter.number
 
-  private[this] var inFlightInstanceOperations = Map.empty[Instance.Id, Cancellable]
+  private[this] var inFlightInstanceOperations = Map.empty[Instance.Id, (Cancellable, Option[Attempt])]
 
   private[this] var recheckBackOff: Option[Cancellable] = None
   private[this] var backOffUntil: Option[Timestamp] = None
@@ -149,7 +167,7 @@ private class TaskLauncherActor(
 
     if (inFlightInstanceOperations.nonEmpty) {
       logger.warn(s"Actor shutdown while instances are in flight: ${inFlightInstanceOperations.keys.mkString(", ")}")
-      inFlightInstanceOperations.values.foreach(_.cancel())
+      inFlightInstanceOperations.values.foreach(_._1.cancel())
     }
 
     offerMatchStatisticsActor ! OfferMatchStatisticsActor.LaunchFinished(runSpec.id)
@@ -266,14 +284,14 @@ private class TaskLauncherActor(
 
   private[this] def receiveTaskLaunchNotification: Receive = {
     case InstanceOpSourceDelegate.InstanceOpRejected(op, reason) if inFlight(op) =>
+      val maybeAttempt = inFlightInstanceOperations.get(op.instanceId).map(_._2).getOrElse(None)
       removeInstance(op.instanceId)
       logger.debug(s"Task op '${op.getClass.getSimpleName}' for ${op.instanceId} was REJECTED, reason '$reason', rescheduling. $status")
 
       op match {
         // only increment for launch ops, not for reservations:
-        // TODO (Keno): We'll probably want to do something here
-        // case _: InstanceOp.LaunchTask => instancesToLaunch += 1
-        // case _: InstanceOp.LaunchTaskGroup => instancesToLaunch += 1
+        case _: InstanceOp.LaunchTask => taskLaunchQueue.queueAttempt(maybeAttempt)
+        case _: InstanceOp.LaunchTaskGroup => taskLaunchQueue.queueAttempt(maybeAttempt)
         case _ => ()
       }
 
@@ -318,7 +336,7 @@ private class TaskLauncherActor(
   }
 
   private[this] def removeInstance(instanceId: Instance.Id): Unit = {
-    inFlightInstanceOperations.get(instanceId).foreach(_.cancel())
+    inFlightInstanceOperations.get(instanceId).foreach(_._1.cancel())
     inFlightInstanceOperations -= instanceId
     instanceMap -= instanceId
   }
@@ -333,8 +351,7 @@ private class TaskLauncherActor(
       val configChange = runSpec.isUpgrade(newRunSpec)
       if (configChange || runSpec.needsRestart(newRunSpec) || runSpec.isOnlyScaleChange(newRunSpec)) {
         runSpec = newRunSpec
-        // Todo (Keno): We'll probably want to do something here
-        // instancesToLaunch = addCount
+        taskLaunchQueue.setAttemptCount(attempt, addCount)
 
         if (configChange) {
           logger.info(s"getting new runSpec for '${runSpec.id}', version ${runSpec.version} with $addCount initial instances")
@@ -418,12 +435,14 @@ private class TaskLauncherActor(
   private[this] def handleInstanceOp(instanceOp: InstanceOp, offer: Mesos.Offer, promise: Promise[MatchedInstanceOps]): Unit = {
     def updateActorState(): Unit = {
       val instanceId = instanceOp.instanceId
-      instanceOp match {
+      val maybeAttempt = instanceOp match {
         // only decrement for launched instances, not for reservations:
-        case _: InstanceOp.LaunchTask => taskLaunchQueue.popAttempt().foreach(addInstance(_, instanceId))
-        case _: InstanceOp.LaunchTaskGroup => taskLaunchQueue.popAttempt().foreach(addInstance(_, instanceId))
-        case _ => ()
+        case _: InstanceOp.LaunchTask => taskLaunchQueue.popAttempt()
+        case _: InstanceOp.LaunchTaskGroup => taskLaunchQueue.popAttempt()
+        case _ => None
       }
+
+      maybeAttempt.foreach(addInstance(_, instanceId))
 
       // We will receive the updated instance once it's been persisted. Before that,
       // we can only store the possible state, as we don't have the updated state
@@ -445,7 +464,7 @@ private class TaskLauncherActor(
         // should be fairly rare.
         // A better solution would involve an overhaul of the way TaskLaunchActor works and might be
         // a subject to change in the future.
-        scheduleTaskOpTimeout(instanceOp)
+        scheduleTaskOpTimeout(instanceOp, maybeAttempt)
       }
 
       OfferMatcherRegistration.manageOfferMatcherStatus()
@@ -463,12 +482,12 @@ private class TaskLauncherActor(
     attemptRepository.store(attempt)
   }
 
-  private[this] def scheduleTaskOpTimeout(instanceOp: InstanceOp): Unit = {
+  private[this] def scheduleTaskOpTimeout(instanceOp: InstanceOp, attempt: Option[Attempt]): Unit = {
     val reject = InstanceOpSourceDelegate.InstanceOpRejected(
       instanceOp, TaskLauncherActor.OfferOperationRejectedTimeoutReason
     )
     val cancellable = scheduleTaskOperationTimeout(context, reject)
-    inFlightInstanceOperations += instanceOp.instanceId -> cancellable
+    inFlightInstanceOperations += instanceOp.instanceId -> ((cancellable, attempt))
   }
 
   private[this] def inFlight(op: InstanceOp): Boolean = inFlightInstanceOperations.contains(op.instanceId)
