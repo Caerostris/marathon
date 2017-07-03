@@ -11,6 +11,7 @@ import mesosphere.marathon.core.launchqueue.{ LaunchQueue, LaunchQueueConfig }
 import mesosphere.marathon.state.{ PathId, RunSpec }
 import LaunchQueue.QueuedInstanceInfo
 import com.typesafe.scalalogging.StrictLogging
+import mesosphere.marathon.core.attempt.Attempt
 import mesosphere.marathon.core.instance.update.InstanceChange
 
 import scala.concurrent.Future
@@ -21,7 +22,7 @@ private[launchqueue] object LaunchQueueActor {
   def props(
     config: LaunchQueueConfig,
     offerMatcherStatisticsActor: ActorRef,
-    runSpecActorProps: (RunSpec, Int) => Props): Props = {
+    runSpecActorProps: (RunSpec, Int, Option[Attempt]) => Props): Props = {
     Props(new LaunchQueueActor(config, offerMatcherStatisticsActor, runSpecActorProps))
   }
 
@@ -36,7 +37,7 @@ private[launchqueue] object LaunchQueueActor {
 private[impl] class LaunchQueueActor(
     launchQueueConfig: LaunchQueueConfig,
     offerMatchStatisticsActor: ActorRef,
-    runSpecActorProps: (RunSpec, Int) => Props) extends Actor with StrictLogging {
+    runSpecActorProps: (RunSpec, Int, Option[Attempt]) => Props) extends Actor with StrictLogging {
   import LaunchQueueDelegate._
 
   /** Currently active actors by pathId. */
@@ -125,14 +126,15 @@ private[impl] class LaunchQueueActor(
   }
 
   private[this] def receiveMessagesToSuspendedActor: Receive = {
-    case msg @ Count(appId) if suspendedLauncherPathIds(appId) =>
+    case _@ Count(appId) if suspendedLauncherPathIds(appId) =>
       // Deferring this would also block List.
       sender() ! None
 
-    case msg @ Add(app, count) if suspendedLauncherPathIds(app.id) =>
+    case msg @ Add(app, _, _) if suspendedLauncherPathIds(app.id) =>
       deferMessageToSuspendedActor(msg, app.id)
 
     case msg @ RateLimiterActor.DelayUpdate(app, _) if suspendedLauncherPathIds(app.id) =>
+      // TODO (Keno): Rate limiter affects all attempts this way
       deferMessageToSuspendedActor(msg, app.id)
   }
 
@@ -181,11 +183,11 @@ private[impl] class LaunchQueueActor(
         case None => sender() ! None
       }
 
-    case Add(app, count) =>
+    case Add(app, count, attempt) =>
       launchers.get(app.id) match {
         case None =>
           import context.dispatcher
-          val actorRef = createAppTaskLauncher(app, count)
+          val actorRef = createAppTaskLauncher(app, count, attempt)
           val eventualCount: Future[QueuedInstanceInfo] =
             (actorRef ? TaskLauncherActor.GetCount).mapTo[QueuedInstanceInfo]
           eventualCount.map(_ => ()).pipeTo(sender())
@@ -193,7 +195,7 @@ private[impl] class LaunchQueueActor(
         case Some(actorRef) =>
           import context.dispatcher
           val eventualCount: Future[QueuedInstanceInfo] =
-            (actorRef ? TaskLauncherActor.AddInstances(app, count)).mapTo[QueuedInstanceInfo]
+            (actorRef ? TaskLauncherActor.AddInstances(app, count, attempt)).mapTo[QueuedInstanceInfo]
           eventualCount.map(_ => ()).pipeTo(sender())
       }
 
@@ -201,8 +203,8 @@ private[impl] class LaunchQueueActor(
       launchers.get(app.id).foreach(_.forward(msg))
   }
 
-  private[this] def createAppTaskLauncher(app: RunSpec, initialCount: Int): ActorRef = {
-    val actorRef = context.actorOf(runSpecActorProps(app, initialCount), s"$childSerial-${app.id.safePath}")
+  private[this] def createAppTaskLauncher(app: RunSpec, initialCount: Int, attempt: Option[Attempt]): ActorRef = {
+    val actorRef = context.actorOf(runSpecActorProps(app, initialCount, attempt), s"$childSerial-${app.id.safePath}")
     childSerial += 1
     launchers += app.id -> actorRef
     launcherRefs += actorRef -> app.id

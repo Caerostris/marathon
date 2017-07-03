@@ -4,7 +4,9 @@ package core.task.update.impl.steps
 import javax.inject.Named
 
 import akka.Done
-import akka.actor.ActorRef
+import akka.actor.{ ActorRef, ActorSystem }
+import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.Sink
 import com.google.inject.{ Inject, Provider }
 import mesosphere.marathon.MarathonSchedulerActor.StartInstances
 import mesosphere.marathon.core.condition.Condition
@@ -23,20 +25,28 @@ class RestartJobStepImpl @Inject() (
   private[this] val log = LoggerFactory.getLogger(getClass)
   private[this] lazy val schedulerActor = schedulerActorProvider.get()
 
+  implicit val system = ActorSystem()
+  implicit val materializer = ActorMaterializer()
+
   override def name: String = "restartJob"
 
   override def process(change: InstanceChange, storageModule: StorageModule)(implicit exc: ExecutionContext): Future[Done] = continueOnError(name, change) { change =>
     if (change.condition == Condition.Failed) {
-      storageModule.attemptRepository.get(change.instance.attemptId).map(maybeAttempt => {
-        val mayRestart = maybeAttempt.forall(attempt => attempt.permitsRestart())
-        if (mayRestart) {
-          log.info(s"Restarting job after failure ${change.runSpecId}")
-          schedulerActor ! StartInstances(change.runSpecId, change.runSpecVersion, 1)
-        } else {
-          log.warn(s"Job ${change.runSpecId} failures exceeded cancellation policy. Not restarting.")
-        }
-        Done
-      })
+      storageModule.attemptRepository
+        .all()
+        .filter(_.launches.contains(change.id))
+        .runWith(Sink.seq)
+        .map(attempts => {
+          val maybeAttempt = attempts.lastOption
+          val mayRestart = maybeAttempt.forall(attempt => attempt.permitsRestart())
+          if (mayRestart) {
+            log.info(s"Restarting job after failure ${change.runSpecId}")
+            schedulerActor ! StartInstances(change.runSpecId, change.runSpecVersion, 1, maybeAttempt)
+          } else {
+            log.warn(s"Job ${change.runSpecId} failures exceeded cancellation policy. Not restarting.")
+          }
+          Done
+        })
     } else {
       Future.successful(Done)
     }

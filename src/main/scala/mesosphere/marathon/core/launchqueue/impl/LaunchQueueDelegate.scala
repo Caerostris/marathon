@@ -6,6 +6,7 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
+import mesosphere.marathon.core.attempt.Attempt
 import mesosphere.marathon.core.instance.update.InstanceChange
 import mesosphere.marathon.core.launchqueue.LaunchQueue.{ QueuedInstanceInfo, QueuedInstanceInfoWithStatistics }
 import mesosphere.marathon.core.launchqueue.{ LaunchQueue, LaunchQueueConfig }
@@ -50,7 +51,8 @@ private[launchqueue] class LaunchQueueDelegate(
     askQueueActorFuture[LaunchQueueDelegate.Request, Done]("asyncPurge", timeout = purgeTimeout)(LaunchQueueDelegate.Purge(runSpecId))
   }
 
-  override def add(runSpec: RunSpec, count: Int): Unit = askQueueActor[LaunchQueueDelegate.Request, Unit]("add")(LaunchQueueDelegate.Add(runSpec, count))
+  override def add(runSpec: RunSpec, count: Int, attempt: Option[Attempt]): Unit =
+    askQueueActor[LaunchQueueDelegate.Request, Unit]("add")(LaunchQueueDelegate.Add(runSpec, count, attempt))
 
   private[this] def askQueueActor[T, R: ClassTag](
     method: String,
@@ -85,5 +87,5 @@ private[impl] object LaunchQueueDelegate {
   case class Count(runSpecId: PathId) extends Request
   case class Purge(runSpecId: PathId) extends Request
   case object ConfirmPurge extends Request
-  case class Add(spec: RunSpec, count: Int) extends Request
+  case class Add(spec: RunSpec, count: Int, attempt: Option[Attempt]) extends Request
 }

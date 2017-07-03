@@ -7,6 +7,7 @@ import akka.event.{ EventStream, LoggingReceive }
 import akka.stream.Materializer
 import akka.stream.scaladsl.Sink
 import com.typesafe.scalalogging.StrictLogging
+import mesosphere.marathon.core.attempt.Attempt
 import mesosphere.marathon.core.deployment.{ DeploymentManager, DeploymentPlan, ScalingProposition }
 import mesosphere.marathon.core.election.{ ElectionService, LocalLeadershipEvent }
 import mesosphere.marathon.core.event.{ AppTerminatedEvent, DeploymentSuccess }
@@ -160,8 +161,8 @@ class MarathonSchedulerActor private (
         case _ =>
       }
 
-    case cmd @ StartInstances(runSpecId, version, numInstances) =>
-      schedulerActions.startInstances(runSpecId, version, numInstances)
+    case cmd @ StartInstances(runSpecId, version, numInstances, attempt) =>
+      schedulerActions.startInstances(runSpecId, version, numInstances, attempt)
 
     case cmd @ CancelDeployment(plan) =>
       deploymentManager.cancel(plan).onComplete{
@@ -345,8 +346,8 @@ object MarathonSchedulerActor {
     def answer: Event = RunSpecScaled(runSpecId)
   }
 
-  case class StartInstances(runSpecId: PathId, version: Timestamp, numInstances: Int) extends Command {
-    def answer: Event = InstancesStarted(runSpecId, version, numInstances)
+  case class StartInstances(runSpecId: PathId, version: Timestamp, numInstances: Int, attempt: Option[Attempt]) extends Command {
+    def answer: Event = InstancesStarted(runSpecId, version, numInstances, attempt)
   }
 
   case class Deploy(plan: DeploymentPlan, force: Boolean = false) extends Command {
@@ -363,7 +364,7 @@ object MarathonSchedulerActor {
 
   sealed trait Event
   case class RunSpecScaled(runSpecId: PathId) extends Event
-  case class InstancesStarted(runSpecId: PathId, version: Timestamp, numInstances: Int) extends Event
+  case class InstancesStarted(runSpecId: PathId, version: Timestamp, numInstances: Int, attempt: Option[Attempt]) extends Event
   case object TasksReconciled extends Event
   case class DeploymentStarted(plan: DeploymentPlan) extends Event
   case class DeploymentFailed(plan: DeploymentPlan, reason: Throwable) extends Event
@@ -525,19 +526,19 @@ class SchedulerActions(
     }
   }
 
-  def startInstances(runSpecId: PathId, runSpecVersion: Timestamp, numInstances: Int): Future[Done] = async {
+  def startInstances(runSpecId: PathId, runSpecVersion: Timestamp, numInstances: Int, attempt: Option[Attempt]): Future[Done] = async {
     val runSpec = await(runSpecById(runSpecId))
     runSpec match {
-      case Some(runSpec) => await(startInstances(runSpec, numInstances))
+      case Some(runSpec) => await(startInstances(runSpec, numInstances, attempt))
       case _ =>
         logger.warn(s"RunSpec $runSpecId does not exist. Not starting.")
         Done
     }
   }
 
-  def startInstances(runSpec: RunSpec, numInstances: Int): Future[Done] = async {
+  def startInstances(runSpec: RunSpec, numInstances: Int, attempt: Option[Attempt]): Future[Done] = async {
     logger.info(s"Starting ${runSpec.id}")
-    launchQueue.add(runSpec, numInstances)
+    launchQueue.add(runSpec, numInstances, attempt)
     Done
   }
 

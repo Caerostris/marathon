@@ -103,20 +103,23 @@ class AppsResource @Inject() (
         .map(_ => throw ConflictingChangeException(s"An app with id [${app.id}] already exists."))
         .getOrElse(app)
 
+      val maybeAttempt = app.lifecycle match {
+        case manual: ManualSchedule => manual.cancellationPolicy.map(cancellationPolicy => {
+          val attempt = new Attempt(Attempt.Id.forRunSpec(app.id), cancellationPolicy)
+          attemptRepository.store(attempt)
+          attempt
+        })
+        case _ => None
+      }
+
       val maybeDeployment = if (app.lifecycle.affectsDeployment) {
         val plan = result(groupManager.updateApp(app.id, createOrThrow, app.version, force))
         Some(plan)
       } else {
         // update repository with new app definition
         result(groupManager.updateAppWithoutDeployment(app.id, createOrThrow, app.version, Seq(app)))
-        schedulerActor ! StartInstances(app.id, app.version, numInstances = 1)
+        schedulerActor ! StartInstances(app.id, app.version, numInstances = 1, maybeAttempt)
         None
-      }
-
-      app.lifecycle match {
-        case manual: ManualSchedule => manual.cancellationPolicy.foreach(cancellationPolicy => {
-          result(attemptRepository.store(new Attempt(Attempt.Id.forRunSpec(app.id), cancellationPolicy)))
-        })
       }
 
       val appWithDeployments = AppInfo(
@@ -309,7 +312,8 @@ class AppsResource @Inject() (
 
         deploymentResult (restartDeployment)
       } else {
-        schedulerActor ! StartInstances(runSpec.id, runSpec.version, runSpec.instances)
+        // TODO (Keno): Create an attempt for the instance
+        schedulerActor ! StartInstances(runSpec.id, runSpec.version, runSpec.instances, None)
         Response.ok().build()
       }
     ).getOrElse(Response.noContent().build())

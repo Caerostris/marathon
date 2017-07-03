@@ -2,6 +2,7 @@ package mesosphere.marathon
 package core.launchqueue
 
 import akka.Done
+import mesosphere.marathon.core.attempt.Attempt
 import mesosphere.marathon.core.instance.update.InstanceChange
 import mesosphere.marathon.core.launcher.OfferMatchResult
 import mesosphere.marathon.core.launchqueue.LaunchQueue.{ QueuedInstanceInfo, QueuedInstanceInfoWithStatistics }
@@ -60,7 +61,7 @@ trait LaunchQueue {
   def listRunSpecs: Seq[RunSpec]
 
   /** Request to launch `count` additional instances conforming to the given run spec. */
-  def add(spec: RunSpec, count: Int = 1): Unit
+  def add(spec: RunSpec, count: Int = 1, attempt: Option[Attempt] = None): Unit
 
   /** Get information for the given run spec id. */
   def get(specId: PathId): Option[QueuedInstanceInfo]

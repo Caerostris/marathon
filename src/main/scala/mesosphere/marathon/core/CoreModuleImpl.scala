@@ -145,7 +145,8 @@ class CoreModuleImpl @Inject() (
 
     // external guice dependencies
     taskTrackerModule.instanceTracker,
-    launcherModule.taskOpFactory
+    launcherModule.taskOpFactory,
+    storageModule.attemptRepository
   )
 
   // PLUGINS
