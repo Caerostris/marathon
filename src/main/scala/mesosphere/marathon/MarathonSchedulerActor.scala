@@ -18,7 +18,7 @@ import mesosphere.marathon.core.launchqueue.LaunchQueue
 import mesosphere.marathon.core.task.Task
 import mesosphere.marathon.core.task.termination.{ KillReason, KillService }
 import mesosphere.marathon.core.task.tracker.InstanceTracker
-import mesosphere.marathon.state.{ PathId, RunSpec, Timestamp }
+import mesosphere.marathon.state.{ PathId, RunSpec }
 import mesosphere.marathon.storage.repository.{ DeploymentRepository, GroupRepository }
 import mesosphere.marathon.stream.Implicits._
 import mesosphere.mesos.Constraints
@@ -161,8 +161,8 @@ class MarathonSchedulerActor private (
         case _ =>
       }
 
-    case cmd @ StartInstances(runSpecId, version, numInstances, attempt) =>
-      schedulerActions.startInstances(runSpecId, version, numInstances, attempt)
+    case cmd @ StartInstances(runSpecId, numInstances, attempt) =>
+      schedulerActions.startInstances(runSpecId, numInstances, attempt)
 
     case cmd @ CancelDeployment(plan) =>
       deploymentManager.cancel(plan).onComplete{
@@ -346,8 +346,8 @@ object MarathonSchedulerActor {
     def answer: Event = RunSpecScaled(runSpecId)
   }
 
-  case class StartInstances(runSpecId: PathId, version: Timestamp, numInstances: Int, attempt: Option[Attempt]) extends Command {
-    def answer: Event = InstancesStarted(runSpecId, version, numInstances, attempt)
+  case class StartInstances(runSpecId: PathId, numInstances: Int, attempt: Option[Attempt]) extends Command {
+    def answer: Event = InstancesStarted(runSpecId, numInstances, attempt)
   }
 
   case class Deploy(plan: DeploymentPlan, force: Boolean = false) extends Command {
@@ -364,7 +364,7 @@ object MarathonSchedulerActor {
 
   sealed trait Event
   case class RunSpecScaled(runSpecId: PathId) extends Event
-  case class InstancesStarted(runSpecId: PathId, version: Timestamp, numInstances: Int, attempt: Option[Attempt]) extends Event
+  case class InstancesStarted(runSpecId: PathId, numInstances: Int, attempt: Option[Attempt]) extends Event
   case object TasksReconciled extends Event
   case class DeploymentStarted(plan: DeploymentPlan) extends Event
   case class DeploymentFailed(plan: DeploymentPlan, reason: Throwable) extends Event
@@ -526,7 +526,7 @@ class SchedulerActions(
     }
   }
 
-  def startInstances(runSpecId: PathId, runSpecVersion: Timestamp, numInstances: Int, attempt: Option[Attempt]): Future[Done] = async {
+  def startInstances(runSpecId: PathId, numInstances: Int, attempt: Option[Attempt]): Future[Done] = async {
     val runSpec = await(runSpecById(runSpecId))
     runSpec match {
       case Some(runSpec) => await(startInstances(runSpec, numInstances, attempt))

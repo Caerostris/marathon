@@ -41,7 +41,7 @@ class RestartJobStepImpl @Inject() (
           val mayRestart = maybeAttempt.forall(attempt => attempt.permitsRestart())
           if (mayRestart) {
             log.info(s"Restarting job after failure ${change.runSpecId}")
-            schedulerActor ! StartInstances(change.runSpecId, change.runSpecVersion, 1, maybeAttempt)
+            schedulerActor ! StartInstances(change.runSpecId, numInstances = 1, maybeAttempt)
           } else {
             log.warn(s"Job ${change.runSpecId} failures exceeded cancellation policy. Not restarting.")
           }

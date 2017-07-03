@@ -118,7 +118,7 @@ class AppsResource @Inject() (
       } else {
         // update repository with new app definition
         result(groupManager.updateAppWithoutDeployment(app.id, createOrThrow, app.version, Seq(app)))
-        schedulerActor ! StartInstances(app.id, app.version, numInstances = 1, maybeAttempt)
+        schedulerActor ! StartInstances(app.id, numInstances = 1, maybeAttempt)
         None
       }
 
@@ -313,7 +313,7 @@ class AppsResource @Inject() (
         deploymentResult (restartDeployment)
       } else {
         // TODO (Keno): Create an attempt for the instance
-        schedulerActor ! StartInstances(runSpec.id, runSpec.version, runSpec.instances, None)
+        schedulerActor ! StartInstances(runSpec.id, runSpec.instances, None)
         Response.ok().build()
       }
     ).getOrElse(Response.noContent().build())
