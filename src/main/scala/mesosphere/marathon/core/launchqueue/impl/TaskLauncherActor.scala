@@ -271,8 +271,8 @@ private class TaskLauncherActor(
       op match {
         // only increment for launch ops, not for reservations:
         // TODO (Keno): We'll probably want to do something here
-        //case _: InstanceOp.LaunchTask => instancesToLaunch += 1
-        //case _: InstanceOp.LaunchTaskGroup => instancesToLaunch += 1
+        // case _: InstanceOp.LaunchTask => instancesToLaunch += 1
+        // case _: InstanceOp.LaunchTaskGroup => instancesToLaunch += 1
         case _ => ()
       }
 
@@ -345,7 +345,6 @@ private class TaskLauncherActor(
         }
       } else {
         logger.info(s"add {$addCount instances to ${taskLaunchQueue.instancesToLaunch} instances to launch")
-
         taskLaunchQueue.queueAttempt(attempt, addCount)
       }
 

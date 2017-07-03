@@ -104,11 +104,7 @@ class InstanceOpFactoryImpl(
         )
 
         val agentInfo = AgentInfo(offer)
-        val instance = LegacyAppInstance(
-          task,
-          agentInfo,
-          app.unreachableStrategy
-        )
+        val instance = LegacyAppInstance(task, agentInfo, app.unreachableStrategy)
         val instanceOp = taskOperationFactory.launchEphemeral(taskInfo, task, instance)
         OfferMatchResult.Match(app, request.offer, instanceOp, clock.now())
       case matchesNot: ResourceMatchResponse.NoMatch => OfferMatchResult.NoMatch(app, request.offer, matchesNot.reasons, clock.now())

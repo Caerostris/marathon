@@ -4,7 +4,6 @@ package core.instance
 import java.util.Base64
 
 import com.fasterxml.uuid.{ EthernetAddress, Generators }
-import mesosphere.marathon.core.attempt.Attempt
 import mesosphere.marathon.core.condition.Condition
 import mesosphere.marathon.core.instance.Instance.{ AgentInfo, InstanceState }
 import mesosphere.marathon.core.task.Task
@@ -31,7 +30,6 @@ case class Instance(
     unreachableStrategy: UnreachableStrategy) extends MarathonState[Protos.Json, Instance] with Placed {
 
   val runSpecId: PathId = instanceId.runSpecId
-  val attemptId: Attempt.Id = Attempt.Id.forRunSpec(runSpecId)
   val isLaunched: Boolean = state.condition.isActive
 
   def isReserved: Boolean = state.condition == Condition.Reserved
@@ -327,16 +325,7 @@ object Instance {
       (__ \ "runSpecVersion").write[Timestamp] ~
       (__ \ "state").write[InstanceState] ~
       (__ \ "unreachableStrategy").write[raml.UnreachableStrategy]
-    ) { (i) =>
-        (
-          i.instanceId,
-          i.agentInfo,
-          i.tasksMap,
-          i.runSpecVersion,
-          i.state,
-          Raml.toRaml(i.unreachableStrategy)
-        )
-      }
+    ) { (i) => (i.instanceId, i.agentInfo, i.tasksMap, i.runSpecVersion, i.state, Raml.toRaml(i.unreachableStrategy)) }
   }
 
   implicit val unreachableStrategyReads: Reads[Instance] = {
@@ -374,13 +363,15 @@ object Instance {
   * - HealthCheckActor (will be changed soon)
   * - InstanceOpFactoryHelper and InstanceOpFactoryImpl (start resident and ephemeral tasks for an AppDefinition)
   * - Migration to 1.4
+  *
+  * @param instanceId calculated instanceId based on the taskId
+  * @param agentInfo according agent information of the task
+  * @param state calculated instanceState based on taskState
+  * @param tasksMap a map of one key/value pair consisting of the actual task
+  * @param runSpecVersion the version of the task related runSpec
   */
 object LegacyAppInstance {
-  def apply(
-    task: Task,
-    agentInfo: AgentInfo,
-    unreachableStrategy: UnreachableStrategy
-  ): Instance = {
+  def apply(task: Task, agentInfo: AgentInfo, unreachableStrategy: UnreachableStrategy): Instance = {
     val since = task.status.startedAt.getOrElse(task.status.stagedAt)
     val tasksMap = Map(task.taskId -> task)
     val state = Instance.InstanceState(None, tasksMap, since, unreachableStrategy)
