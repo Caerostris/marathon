@@ -26,12 +26,11 @@ import mesosphere.marathon.plugin.auth._
 import mesosphere.marathon.raml.{ AppConversion, AppExternalVolume, AppPersistentVolume, ManualSchedule, Raml }
 import mesosphere.marathon.state.PathId._
 import mesosphere.marathon.state._
-import mesosphere.marathon.storage.repository.{ AttemptRepository, GroupRepository }
+import mesosphere.marathon.storage.repository.AttemptRepository
 import mesosphere.marathon.stream.Implicits._
 import play.api.libs.json.{ JsObject, Json }
 
-import scala.concurrent.{ Await, ExecutionContext }
-import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext
 
 @Path("v2/apps")
 @Consumes(Array(MediaType.APPLICATION_JSON))
@@ -44,7 +43,6 @@ class AppsResource @Inject() (
     appInfoService: AppInfoService,
     val config: MarathonConf,
     groupManager: GroupManager,
-    groupRepository: GroupRepository,
     attemptRepository: AttemptRepository,
     launchQueue: LaunchQueue,
     pluginManager: PluginManager,
@@ -302,8 +300,7 @@ class AppsResource @Inject() (
         .getOrElse(throw AppNotFoundException(appId))
     }
 
-    val runSpec = Await.result(groupRepository.root().map(_.transitiveRunSpecsById.get(appId)), 300 millis)
-    runSpec.map(runSpec =>
+    groupManager.runSpec(appId).map(runSpec =>
       if (runSpec.lifecycle.affectsDeployment) {
         val newVersion = clock.now ()
         val restartDeployment = result (

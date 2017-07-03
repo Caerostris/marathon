@@ -25,16 +25,14 @@ class AttemptUpdateStepImpl @Inject() () extends InstanceChangeHandler {
   implicit val materializer = ActorMaterializer()
 
   override def process(change: InstanceChange, storageModule: StorageModule)(implicit ec: ExecutionContext): Future[Done] = continueOnError(name, change) { change =>
-    log.info(s"Trying to retrieve ${change.instance.attemptId} from database")
+    log.info(s"Trying to retrieve attempt for ${change.id} from database")
     storageModule.attemptRepository
       .all()
       .filter(_.launches.contains(change.id))
       .runForeach(attempt => {
-        log.info(s"${change.instance.attemptId} retrieved.")
+        log.info(s"Retrieved ${attempt.attemptId} for ${change.id}.")
         attempt.registerInstanceChange(change)
         storageModule.attemptRepository.store(attempt)
       })
-
-    // TODO (Keno): Is this right / safe / ...?
   }
 }
