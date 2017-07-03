@@ -346,7 +346,7 @@ object MarathonSchedulerActor {
     def answer: Event = RunSpecScaled(runSpecId)
   }
 
-  case class StartInstances(runSpecId: PathId, numInstances: Int, attempt: Option[Attempt]) extends Command {
+  case class StartInstances(runSpecId: PathId, numInstances: Int, attempt: Option[Attempt] = None) extends Command {
     def answer: Event = InstancesStarted(runSpecId, numInstances, attempt)
   }
 

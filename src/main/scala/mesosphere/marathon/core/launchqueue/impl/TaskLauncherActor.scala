@@ -20,6 +20,7 @@ import mesosphere.marathon.core.matcher.base.util.InstanceOpSourceDelegate.Insta
 import mesosphere.marathon.core.matcher.base.util.{ ActorOfferMatcher, InstanceOpSourceDelegate }
 import mesosphere.marathon.core.matcher.manager.OfferMatcherManager
 import mesosphere.marathon.core.task.tracker.InstanceTracker
+import mesosphere.marathon.raml.ManualSchedule
 import mesosphere.marathon.state.{ RunSpec, Timestamp }
 import mesosphere.marathon.storage.repository.AttemptRepository
 import org.apache.mesos.{ Protos => Mesos }
@@ -345,7 +346,17 @@ private class TaskLauncherActor(
         }
       } else {
         logger.info(s"add {$addCount instances to ${taskLaunchQueue.instancesToLaunch} instances to launch")
-        taskLaunchQueue.queueAttempt(attempt, addCount)
+
+        val createdAttempt = attempt.orElse(
+          newRunSpec.lifecycle match {
+            case manual: ManualSchedule => manual.cancellationPolicy.map(cancellationPolicy => {
+              new Attempt(Attempt.Id.forRunSpec(newRunSpec.id), cancellationPolicy)
+            })
+            case _ => None
+          }
+        )
+
+        taskLaunchQueue.queueAttempt(createdAttempt, addCount)
       }
 
       OfferMatcherRegistration.manageOfferMatcherStatus()

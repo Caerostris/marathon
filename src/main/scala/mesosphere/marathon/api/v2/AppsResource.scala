@@ -16,17 +16,15 @@ import mesosphere.marathon.api.v2.json.Formats._
 import mesosphere.marathon.api.v2.validation.AppValidation
 import mesosphere.marathon.api.{ AuthResource, MarathonMediaType, PATCH, RestResource }
 import mesosphere.marathon.core.appinfo._
-import mesosphere.marathon.core.attempt.Attempt
 import mesosphere.marathon.core.base.Clock
 import mesosphere.marathon.core.event.ApiPostEvent
 import mesosphere.marathon.core.group.GroupManager
 import mesosphere.marathon.core.launchqueue.LaunchQueue
 import mesosphere.marathon.core.plugin.PluginManager
 import mesosphere.marathon.plugin.auth._
-import mesosphere.marathon.raml.{ AppConversion, AppExternalVolume, AppPersistentVolume, ManualSchedule, Raml }
+import mesosphere.marathon.raml.{ AppConversion, AppExternalVolume, AppPersistentVolume, Raml }
 import mesosphere.marathon.state.PathId._
 import mesosphere.marathon.state._
-import mesosphere.marathon.storage.repository.AttemptRepository
 import mesosphere.marathon.stream.Implicits._
 import play.api.libs.json.{ JsObject, Json }
 
@@ -43,7 +41,6 @@ class AppsResource @Inject() (
     appInfoService: AppInfoService,
     val config: MarathonConf,
     groupManager: GroupManager,
-    attemptRepository: AttemptRepository,
     launchQueue: LaunchQueue,
     pluginManager: PluginManager,
     @Named("schedulerActor") schedulerActorProvider: Provider[ActorRef])(implicit
@@ -101,22 +98,13 @@ class AppsResource @Inject() (
         .map(_ => throw ConflictingChangeException(s"An app with id [${app.id}] already exists."))
         .getOrElse(app)
 
-      val maybeAttempt = app.lifecycle match {
-        case manual: ManualSchedule => manual.cancellationPolicy.map(cancellationPolicy => {
-          val attempt = new Attempt(Attempt.Id.forRunSpec(app.id), cancellationPolicy)
-          attemptRepository.store(attempt)
-          attempt
-        })
-        case _ => None
-      }
-
       val maybeDeployment = if (app.lifecycle.affectsDeployment) {
         val plan = result(groupManager.updateApp(app.id, createOrThrow, app.version, force))
         Some(plan)
       } else {
         // update repository with new app definition
         result(groupManager.updateAppWithoutDeployment(app.id, createOrThrow, app.version, Seq(app)))
-        schedulerActor ! StartInstances(app.id, numInstances = 1, maybeAttempt)
+        schedulerActor ! StartInstances(app.id, numInstances = 1)
         None
       }
 
@@ -309,7 +297,6 @@ class AppsResource @Inject() (
 
         deploymentResult (restartDeployment)
       } else {
-        // TODO (Keno): Create an attempt for the instance
         schedulerActor ! StartInstances(runSpec.id, runSpec.instances, None)
         Response.ok().build()
       }
