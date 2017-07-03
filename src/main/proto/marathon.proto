@@ -498,15 +498,6 @@ message ResidencyDefinition {
   optional TaskLostBehavior taskLostBehavior = 2;
 }
 
-message Scheduler {
-  enum SchedulerType {
-    CONTINUOUS = 0;
-    MANUAL = 1;
-  }
-
-  required SchedulerType schedulerType = 1;
-}
-
 message Secret {
   required string id = 1;
   required string source = 2;
